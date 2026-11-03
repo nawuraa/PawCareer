@@ -12,5 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(InitialHrdSeeder::class);
+        $this->call(DivisionSeeder::class);
+        $this->call(PositionSeeder::class);
     }
 }

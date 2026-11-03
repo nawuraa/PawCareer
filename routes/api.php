@@ -11,6 +11,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v1/logout', [AuthController::class, 'logout']);
 
     Route::get('/v1/me', function (Request $request) {
-        return $request->user();
+        return response()->json([
+            'user' => $request->user()->only([
+                'id',
+                'name',
+                'email',
+                'role',
+                'division_id',
+                'created_at',
+                'updated_at',
+            ]),
+        ]);
     });
 });
