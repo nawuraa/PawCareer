@@ -36,6 +36,31 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
+
+    public function applicantProfile()
+    {
+        return $this->hasOne(ApplicantProfile::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'applicant_id');
+    }
+
+    public function interviews()
+    {
+        return $this->hasMany(Interview::class, 'interviewer_id');
+    }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class, 'requested_by');
+    }
+
     public function isRole(string ...$roles): bool
     {
         return in_array($this->role, $roles, true);
