@@ -13,23 +13,19 @@ class RequisitionController extends Controller
         $user = Auth::user();
         $requisitions = Requisition::where('division_id', $user->division_id)->get();
 
-        // Mengarahkan data ke file blade (nantinya dibuat di resources/views/requisitions/index.blade.php)
         return view('requisitions.index', compact('requisitions'));
     }
 
-    // Menyimpan pengajuan baru ke database
     public function store(Request $request)
     {
-        // 1. Validasi Input sesuai PRD
         $validated = $request->validate([
             'position_id' => 'required|exists:positions,id',
-            'quantity' => 'required|integer|min:1|max:50', // Aturan jumlah 1-50[cite: 1, 2]
-            'reason' => 'required|string', // Alasan wajib[cite: 2]
+            'quantity' => 'required|integer|min:1|max:50',
+            'reason' => 'required|string',
         ]);
 
         $user = Auth::user();
         
-        // 3. Simpan data pengajuan
         Requisition::create([
             'division_id' => $user->division_id,
             'user_id' => $user->id,
@@ -42,19 +38,17 @@ class RequisitionController extends Controller
         return redirect()->route('requisitions.index')->with('success', 'Pengajuan berhasil dibuat.');
     }
 
-    // Menampilkan halaman form tambah
     public function create()
     {
         $user = Auth::user();
-        // Mengambil posisi yang sesuai dengan divisi manajer[cite: 1, 2]
+        // Mengambil posisi yang sesuai dengan divisi manajer
         $positions = \App\Models\Position::where('division_id', $user->division_id)->get();
         return view('requisitions.create', compact('positions'));
     }
 
-    // Menampilkan halaman form ubah
     public function edit(Requisition $requisition)
     {
-        // Aturan: Hanya bisa diubah oleh pembuatnya dan saat status 'Diajukan'[cite: 1, 2]
+        //Hanya bisa diubah oleh pembuatnya dan saat status 'Diajukan'
         if ($requisition->user_id !== Auth::id() || $requisition->status !== 'Diajukan') {
             abort(403, 'Akses ditolak.');
         }
@@ -81,14 +75,12 @@ class RequisitionController extends Controller
         return redirect()->route('requisitions.index')->with('success', 'Pengajuan berhasil diperbarui.');
     }
 
-    // Menghapus pengajuan
     public function destroy(Requisition $requisition)
     {
         if ($requisition->user_id !== Auth::id() || $requisition->status !== 'Diajukan') {
             abort(403, 'Akses ditolak: Hanya pengajuan Anda sendiri dengan status Diajukan yang bisa dihapus.');
         }
 
-        // Mengeksekusi soft delete pada pengajuan[cite: 1, 2].
         $requisition->delete(); 
 
         return redirect()->route('requisitions.index')->with('success', 'Pengajuan berhasil dihapus.');
