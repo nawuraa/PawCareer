@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return response()->json(['message' => 'Login required'], 200);
+        return view('auth.login');
     }
 
     public function login(Request $request)

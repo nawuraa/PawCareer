@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\RequisitionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,5 +26,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'dashboard ok']);
+    });
+
+    Route::middleware('role:division_manager')->group(function () {
+        Route::resource('requisitions', RequisitionController::class);
     });
 });
