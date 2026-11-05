@@ -33,6 +33,12 @@
             <a href="{{ route('applications.index') }}">My applications</a>
             <a href="{{ route('applicant.profile.edit') }}">My profile</a>
         @endif
+        @auth
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit">Sign out</button>
+            </form>
+        @endauth
     </nav>
     <main>
         @yield('content')
