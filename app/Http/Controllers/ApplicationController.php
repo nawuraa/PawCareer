@@ -24,7 +24,13 @@ class ApplicationController extends Controller
         Gate::authorize('viewAny', Application::class);
 
         $applications = Application::query()
-            ->with(['jobPosting.requisition.position.division', 'applicant', 'statusHistories.changer', 'interviews.interviewer'])
+            ->with([
+                'jobPosting.requisition.position.division',
+                'applicant',
+                'statusHistories.changer',
+                'interviews.interviewer',
+                'hiringDecision.decisionMaker',
+            ])
             ->when(
                 Auth::user()->role === 'applicant',
                 fn ($query) => $query->where('applicant_id', Auth::id())

@@ -7,6 +7,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApplicationScreeningController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\InterviewController;
+use App\Http\Controllers\HiringDecisionController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RequisitionController;
@@ -49,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/hrd/applications', [ApplicationController::class, 'index'])->name('hrd.applications.index');
         Route::put('/hrd/applications/{application}/screening', [ApplicationScreeningController::class, 'update'])
             ->name('hrd.applications.screening.update');
+        Route::post('/hrd/applications/{application}/hiring-decision', [HiringDecisionController::class, 'store'])
+            ->name('hrd.applications.hiring-decision.store');
         Route::get('/hrd/interviews', [InterviewController::class, 'index'])->name('hrd.interviews.index');
         Route::post('/hrd/applications/{application}/interviews', [InterviewController::class, 'store'])
             ->name('hrd.applications.interviews.store');

@@ -35,10 +35,20 @@
                             <span>No interview scheduled</span>
                         @endforelse
                     </td>
+                    <td>
+                        @if ($application->hiringDecision)
+                            <strong>Final outcome: {{ str($application->hiringDecision->result)->title() }}</strong>
+                            @if ($application->hiringDecision->start_date)
+                                <p>Start date: {{ $application->hiringDecision->start_date->format('d-m-Y') }}</p>
+                            @endif
+                        @else
+                            <span>No final decision yet</span>
+                        @endif
+                    </td>
                     <td><a href="{{ route('applications.cv', $application) }}">Download my CV</a></td>
                 </tr>
             @empty
-                <tr><td colspan="6">You have not submitted any applications.</td></tr>
+                <tr><td colspan="7">You have not submitted any applications.</td></tr>
             @endforelse
         </tbody>
     </table>

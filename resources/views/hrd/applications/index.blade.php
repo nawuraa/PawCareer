@@ -9,7 +9,7 @@
         <ul role="alert">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
     @endif
     <table>
-        <thead><tr><th>Applicant</th><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>CV</th><th>Screening</th><th>Interview</th></tr></thead>
+        <thead><tr><th>Applicant</th><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>CV</th><th>Screening</th><th>Interview</th><th>Final decision</th></tr></thead>
         <tbody>
             @forelse ($applications as $application)
                 <tr>
@@ -77,9 +77,45 @@
                             <span>Available after screening pass</span>
                         @endif
                     </td>
+                    <td>
+                        @if ($application->hiringDecision)
+                            <strong>{{ str($application->hiringDecision->result)->title() }}</strong>
+                            @if ($application->hiringDecision->start_date)
+                                <p>Start date: {{ $application->hiringDecision->start_date->format('d-m-Y') }}</p>
+                            @endif
+                            <p>{{ $application->hiringDecision->note }}</p>
+                        @elseif ($application->status === 'interview')
+                            @php
+                                $hasCompletedInterview = $application->interviews->contains('status', 'completed');
+                                $hasPendingInterview = $application->interviews->contains('status', 'scheduled');
+                            @endphp
+                            @if ($hasCompletedInterview && ! $hasPendingInterview)
+                                <details>
+                                    <summary>Record final decision</summary>
+                                    <form action="{{ route('hrd.applications.hiring-decision.store', $application) }}" method="POST">
+                                        @csrf
+                                        <label for="result{{ $application->id }}">Outcome</label>
+                                        <select id="result{{ $application->id }}" name="result" required>
+                                            <option value="accepted">Accept</option>
+                                            <option value="rejected">Reject</option>
+                                        </select>
+                                        <label for="start_date{{ $application->id }}">Start date (accepted applicants)</label>
+                                        <input id="start_date{{ $application->id }}" type="date" name="start_date" min="{{ now()->toDateString() }}">
+                                        <label for="decision_note{{ $application->id }}">Decision note</label>
+                                        <textarea id="decision_note{{ $application->id }}" name="note" maxlength="10000" required></textarea>
+                                        <button type="submit">Save final decision</button>
+                                    </form>
+                                </details>
+                            @else
+                                <span>Complete all interviews first</span>
+                            @endif
+                        @else
+                            <span>Available after interviews</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
-                <tr><td colspan="8">No applications received.</td></tr>
+                <tr><td colspan="9">No applications received.</td></tr>
             @endforelse
         </tbody>
     </table>
