@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ApplicantJobPostingController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TrashController;
 use App\Http\Controllers\ApplicantProfileController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApplicationScreeningController;
@@ -61,13 +63,17 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');
 
-    Route::get('/dashboard', function () {
-        return response()->json(['message' => 'dashboard ok']);
-    });
+    // Route::get('/dashboard', function () {
+    //     return response()->json(['message' => 'dashboard ok']);
+    // });
 
     Route::middleware('role:division_manager')->group(function () {
+        Route::get('/dashboard/manager', [DashboardController::class, 'manager'])->name('dashboard.manager');
+        Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
+        Route::post('/trash/requisitions/{id}/restore', [TrashController::class, 'restoreRequisition'])->name('trash.requisitions.restore');
         Route::resource('requisitions', RequisitionController::class)->except(['show']);
     });
+    
 
     Route::middleware('role:applicant')->group(function () {
         Route::get('/jobs', [ApplicantJobPostingController::class, 'index'])->name('applicant.jobs.index');
