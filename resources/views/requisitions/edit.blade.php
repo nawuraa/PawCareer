@@ -17,7 +17,7 @@
                     <select name="position_id" id="position_id" class="form-select @error('position_id') is-invalid @enderror" required>
                         @foreach($positions as $position)
                             <option value="{{ $position->id }}" {{ (old('position_id', $requisition->position_id) == $position->id) ? 'selected' : '' }}>
-                                {{ $position->name }}
+                                {{ $position->name }} — {{ $position->division->name }}
                             </option>
                         @endforeach
                     </select>

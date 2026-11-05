@@ -18,7 +18,7 @@
                         <option value="">-- Pilih Posisi --</option>
                         @foreach($positions as $position)
                             <option value="{{ $position->id }}" {{ old('position_id') == $position->id ? 'selected' : '' }}>
-                                {{ $position->name }}
+                                {{ $position->name }} — {{ $position->division->name }}
                             </option>
                         @endforeach
                     </select>

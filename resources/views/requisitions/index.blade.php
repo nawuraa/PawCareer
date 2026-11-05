@@ -22,6 +22,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
+                        <th>Divisi</th>
                         <th>Posisi</th>
                         <th>Jumlah</th>
                         <th>Alasan</th>
@@ -34,18 +35,19 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <!-- Asumsi relasi ke model Position sudah ada untuk menampilkan nama posisi -->
-                            <td>{{ $req->position->name ?? 'Posisi ID: ' . $req->position_id }}</td>
+                            <td>{{ $req->position->division->name ?? '-' }}</td>
+                            <td>{{ $req->position->name ?? 'Position ID: ' . $req->position_id }}</td>
                             <td>{{ $req->quantity }} Orang</td>
                             <td>{{ $req->reason }}</td>
                             <td>
                                 <!-- Label status konsisten -->
-                                <span class="badge bg-{{ $req->status == 'Diajukan' ? 'warning' : ($req->status == 'Disetujui' ? 'success' : 'danger') }}">
+                                <span class="badge bg-{{ $req->status === 'submitted' ? 'warning' : ($req->status === 'approved' ? 'success' : 'danger') }}">
                                     {{ $req->status }}
                                 </span>
                             </td>
                             <td>
-                                <!-- Aturan: Ubah dan hapus hanya pengajuan buatannya sendiri saat Diajukan[cite: 2] -->
-                                @if($req->user_id === auth()->id() && $req->status === 'Diajukan')
+                                <!-- Only the requester can edit or delete a pending requisition. -->
+                                @if($req->requested_by === auth()->id() && $req->status === 'submitted')
                                     <a href="{{ route('requisitions.edit', $req->id) }}" class="btn btn-sm btn-outline-primary">Ubah</a>
                                     
                                     <form action="{{ route('requisitions.destroy', $req->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pengajuan ini?');">
@@ -60,7 +62,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">Belum ada pengajuan di divisi ini.</td>
+                            <td colspan="7" class="text-center">Belum ada requisitions for this division.</td>
                         </tr>
                     @endforelse
                 </tbody>

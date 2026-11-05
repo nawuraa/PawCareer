@@ -18,7 +18,7 @@
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Deskripsi Pekerjaan</label>
-                    <textarea class="form-control" id="description" name="description" rows="4">{{ old('description', $jobPosting->description) }}</textarea>
+                    <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description', $jobPosting->description) }}</textarea>
                 </div>
 
                 <div class="mb-3">
@@ -29,7 +29,7 @@
                 <div class="mb-3">
                     <label for="deadline" class="form-label">Batas Waktu Lamaran (Deadline)</label>
                     <!-- Zona waktu aplikasi diatur Asia/Jakarta dengan batas akhir pukul 23:59:59 -->
-                    <input type="date" class="form-control" id="deadline" name="deadline" value="{{ old('deadline', optional($jobPosting->deadline)->format('Y-m-d')) }}">
+                    <input type="date" class="form-control" id="deadline" name="deadline" min="{{ now()->toDateString() }}" value="{{ old('deadline', optional($jobPosting->deadline)->format('Y-m-d')) }}" required>
                     <small class="text-muted">Deadline berlaku sampai akhir hari (23:59:59 WIB)[cite: 1].</small>
                 </div>
 
