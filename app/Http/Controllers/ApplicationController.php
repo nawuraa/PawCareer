@@ -24,7 +24,7 @@ class ApplicationController extends Controller
         Gate::authorize('viewAny', Application::class);
 
         $applications = Application::query()
-            ->with(['jobPosting.requisition.position.division', 'applicant'])
+            ->with(['jobPosting.requisition.position.division', 'applicant', 'statusHistories.changer'])
             ->when(
                 Auth::user()->role === 'applicant',
                 fn ($query) => $query->where('applicant_id', Auth::id())
@@ -93,6 +93,12 @@ class ApplicationController extends Controller
                 'cv_path' => $path,
                 'status' => 'submitted',
                 'submitted_at' => now(),
+            ])->statusHistories()->create([
+                'old_status' => null,
+                'new_status' => 'submitted',
+                'changed_by' => $user->id,
+                'reason' => 'Application submitted.',
+                'created_at' => now(),
             ]);
 
         });

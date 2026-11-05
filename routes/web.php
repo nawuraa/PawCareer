@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ApplicantJobPostingController;
 use App\Http\Controllers\ApplicantProfileController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ApplicationScreeningController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\PositionController;
@@ -45,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/job-postings/review/{requisition}', [JobPostingController::class, 'processReview'])->name('job_postings.process_review');
         Route::resource('job-postings', JobPostingController::class)->except(['create', 'store', 'show']);
         Route::get('/hrd/applications', [ApplicationController::class, 'index'])->name('hrd.applications.index');
+        Route::put('/hrd/applications/{application}/screening', [ApplicationScreeningController::class, 'update'])
+            ->name('hrd.applications.screening.update');
     });
 
     Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');

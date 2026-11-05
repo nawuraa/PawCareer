@@ -59,6 +59,13 @@ class ApplicantApplicationTest extends TestCase
         $this->assertSame($applicant->id, $application->applicant_id);
         $this->assertSame('submitted', $application->status);
         $this->assertNotNull($application->submitted_at);
+        $this->assertDatabaseHas('status_histories', [
+            'subject_type' => Application::class,
+            'subject_id' => $application->id,
+            'old_status' => null,
+            'new_status' => 'submitted',
+            'changed_by' => $applicant->id,
+        ]);
         $this->assertStringStartsWith("applications/{$applicant->id}/", $application->cv_path);
         Storage::disk('local')->assertExists($application->cv_path);
 
