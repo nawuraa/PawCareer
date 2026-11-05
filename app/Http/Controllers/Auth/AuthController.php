@@ -16,6 +16,11 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function showRegistrationForm()
+    {
+        return view('auth.register');
+    }
+
     public function login(Request $request)
     {
         $validated = $request->validate([
@@ -28,7 +33,10 @@ class AuthController extends Controller
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
-            abort(429, 'Too many login attempts. Please try again in ' . $seconds . ' seconds.');
+            return back()
+                ->withErrors(['email' => 'Too many login attempts. Try again in '.$seconds.' seconds.'])
+                ->onlyInput('email')
+                ->setStatusCode(429);
         }
 
         if (! Auth::attempt($validated, $request->boolean('remember'))) {
@@ -42,7 +50,7 @@ class AuthController extends Controller
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
-        return redirect()->intended('/dashboard');
+        return redirect()->intended($this->destinationFor($request->user()));
     }
 
     public function logout(Request $request)
@@ -72,7 +80,17 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        $request->session()->regenerate();
 
-        return redirect('/dashboard');
+        return redirect()->route('applicant.profile.edit');
+    }
+
+    private function destinationFor(User $user): string
+    {
+        return match ($user->role) {
+            'hrd' => route('divisions.index'),
+            'division_manager' => route('requisitions.index'),
+            default => route('applicant.jobs.index'),
+        };
     }
 }

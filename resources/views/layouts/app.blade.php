@@ -26,7 +26,19 @@
             <a href="{{ route('positions.index') }}">Positions</a>
             <a href="{{ route('job_postings.review') }}">Requisition review</a>
             <a href="{{ route('job-postings.index') }}">Job postings</a>
+            <a href="{{ route('hrd.applications.index') }}">Applications</a>
+            <a href="{{ route('hrd.interviews.index') }}">My interviews</a>
+        @elseif (auth()->user()?->role === 'applicant')
+            <a href="{{ route('applicant.jobs.index') }}">Open jobs</a>
+            <a href="{{ route('applications.index') }}">My applications</a>
+            <a href="{{ route('applicant.profile.edit') }}">My profile</a>
         @endif
+        @auth
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit">Sign out</button>
+            </form>
+        @endauth
     </nav>
     <main>
         @yield('content')

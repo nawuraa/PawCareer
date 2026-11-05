@@ -1,43 +1,36 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - PawCareer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light d-flex align-items-center vh-100">
+@extends('layouts.guest')
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4">Login PawCareer</h3>
-                    
-                    @if($errors->any())
-                        <div class="alert alert-danger py-2">
-                            {{ $errors->first() }}
-                        </div>
-                    @endif
+@section('title', 'Sign in | PawCareer')
 
-                    <form action="{{ route('login.post') }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Alamat Email</label>
-                            <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required autofocus>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Kata Sandi</label>
-                            <input type="password" name="password" id="password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Masuk</button>
-                    </form>
-                </div>
-            </div>
+@section('content')
+    <span class="eyebrow">Welcome back</span>
+    <h2>Sign in to PawCareer</h2>
+    <p class="intro">Continue your journey in veterinary care.</p>
+
+    @if (session('status'))
+        <p class="alert" role="status">{{ session('status') }}</p>
+    @endif
+    @if ($errors->any())
+        <p class="alert" role="alert">{{ $errors->first() }}</p>
+    @endif
+
+    <form action="{{ route('login.post') }}" method="POST">
+        @csrf
+        <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" placeholder="you@example.com" required autofocus aria-describedby="@error('email') email-error @enderror">
+            @error('email') <p class="error" id="email-error">{{ $message }}</p> @enderror
         </div>
-    </div>
-</div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+        </div>
+        <label class="remember">
+            <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
+            <span>Remember me</span>
+        </label>
+        <button class="submit" type="submit">Sign in</button>
+    </form>
 
-</body>
-</html>
+    <p class="switch">New to PawCareer? <a href="{{ route('register') }}">Create an applicant account</a></p>
+@endsection

@@ -4,10 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Application extends Model
 {
-    protected $fillable = ['job_posting_id', 'applicant_id', 'status'];
+    protected $fillable = [
+        'job_posting_id',
+        'applicant_id',
+        'cv_path',
+        'status',
+        'submitted_at',
+    ];
+
+    protected $casts = [
+        'submitted_at' => 'datetime',
+    ];
 
     public function jobPosting(): BelongsTo
     {
@@ -17,5 +30,20 @@ class Application extends Model
     public function applicant(): BelongsTo
     {
         return $this->belongsTo(User::class, 'applicant_id');
+    }
+
+    public function statusHistories(): MorphMany
+    {
+        return $this->morphMany(StatusHistory::class, 'subject')->orderBy('created_at');
+    }
+
+    public function interviews(): HasMany
+    {
+        return $this->hasMany(Interview::class);
+    }
+
+    public function hiringDecision(): HasOne
+    {
+        return $this->hasOne(HiringDecision::class);
     }
 }
