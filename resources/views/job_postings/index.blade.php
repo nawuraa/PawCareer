@@ -31,7 +31,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>
                                 <strong>{{ $job->title }}</strong><br>
-                                <small class="text-muted">Divisi: {{ $job->requisition->division->name ?? '-' }}</small>
+                                <small class="text-muted">Division: {{ $job->requisition->position->division->name ?? '-' }}</small>
                             </td>
                             <td>{{ $job->quota }} Orang</td>
                             <td>{{ $job->deadline ? $job->deadline->format('d-m-Y') : 'Belum diset' }}</td>

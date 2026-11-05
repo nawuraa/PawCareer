@@ -41,6 +41,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('role:division_manager')->group(function () {
-        Route::resource('requisitions', RequisitionController::class);
+        Route::resource('requisitions', RequisitionController::class)->except(['show']);
     });
 });

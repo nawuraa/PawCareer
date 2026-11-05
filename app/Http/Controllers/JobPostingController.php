@@ -2,99 +2,161 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Requisition;
 use App\Models\JobPosting;
+use App\Models\Requisition;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class JobPostingController extends Controller
 {
-    public function indexReview()
+    public function indexReview(): View
     {
-        // HRD melihat pengajuan yang statusnya masih 'Diajukan'
-        $requisitions = Requisition::with('position', 'manager.division')
-            ->where('status', 'Diajukan')
+        Gate::authorize('viewAny', Requisition::class);
+
+        $requisitions = Requisition::query()
+            ->with(['position.division', 'requester'])
+            ->where('status', 'submitted')
+            ->latest()
             ->get();
-            
+
         return view('job_postings.review', compact('requisitions'));
     }
 
-    public function processReview(Request $request, Requisition $requisition)
+    public function processReview(Request $request, Requisition $requisition): RedirectResponse
     {
-        $validated = $request->validate([
-            'action' => 'required|in:approve,reject',
-            'hrd_notes' => 'required_if:action,reject|nullable|string'
+        Gate::authorize('viewAny', Requisition::class);
+
+        $decision = $request->validate([
+            'action' => ['required', 'in:approve,reject'],
         ]);
 
-        if ($validated['action'] === 'reject') {
-            // ditolak bersifat final
-            $requisition->update([
-                'status' => 'Ditolak',
-                'hrd_notes' => $validated['hrd_notes']
+        if ($decision['action'] === 'reject') {
+            $review = $request->validate([
+                'review_note' => ['required', 'string', 'max:10000'],
             ]);
-            
-            return redirect()->route('job_postings.review')->with('success', 'Pengajuan berhasil ditolak.');
+        } else {
+            $review = $request->validate([
+                'title' => ['nullable', 'string', 'max:150'],
+                'description' => ['required', 'string', 'max:10000'],
+                'requirements' => ['nullable', 'string', 'max:10000'],
+                'deadline' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+                'review_note' => ['nullable', 'string', 'max:10000'],
+            ]);
         }
 
-        $requisition->update([
-            'status' => 'Disetujui',
-            'hrd_notes' => $validated['hrd_notes'] ?? null
-        ]);
+        $result = DB::transaction(function () use ($decision, $review, $requisition): string {
+            $lockedRequisition = Requisition::query()
+                ->with('position')
+                ->lockForUpdate()
+                ->findOrFail($requisition->id);
 
-        JobPosting::create([
-            'requisition_id' => $requisition->id,
-            'created_by' => auth()->id(),
-            'title' => 'Lowongan ' . ($requisition->position->name ?? 'Baru'), 
-            'quota' => $requisition->quantity,
-            'status' => 'open'
-        ]);
+            if ($lockedRequisition->status !== 'submitted') {
+                return 'already_reviewed';
+            }
 
-        return redirect()->route('job_postings.review')->with('success', 'Pengajuan disetujui dan lowongan berhasil diterbitkan otomatis.');
+            if ($decision['action'] === 'reject') {
+                $lockedRequisition->update([
+                    'status' => 'rejected',
+                    'reviewed_by' => Auth::id(),
+                    'review_note' => $review['review_note'],
+                    'reviewed_at' => now(),
+                ]);
+
+                return 'rejected';
+            }
+
+            if ($lockedRequisition->jobPosting()->withTrashed()->exists()) {
+                return 'posting_exists';
+            }
+
+            $lockedRequisition->update([
+                'status' => 'approved',
+                'reviewed_by' => Auth::id(),
+                'review_note' => $review['review_note'] ?? null,
+                'reviewed_at' => now(),
+            ]);
+
+            $lockedRequisition->jobPosting()->create([
+                'created_by' => Auth::id(),
+                'title' => ($review['title'] ?? null) ?: $lockedRequisition->position->name,
+                'description' => $review['description'],
+                'requirements' => $review['requirements'] ?? null,
+                'quota' => $lockedRequisition->quantity,
+                'deadline' => $review['deadline'],
+                'status' => 'open',
+            ]);
+
+            return 'approved';
+        });
+
+        return match ($result) {
+            'approved' => redirect()->route('job_postings.review')->with('success', 'Requisition approved and job posting published.'),
+            'rejected' => redirect()->route('job_postings.review')->with('success', 'Requisition rejected.'),
+            'posting_exists' => back()->withErrors(['requisition' => 'A job posting already exists for this requisition.']),
+            default => back()->withErrors(['requisition' => 'This requisition has already been reviewed.']),
+        };
     }
 
-    public function index()
+    public function index(): View
     {
-        $jobPostings = JobPosting::with('requisition.position', 'creator')->get();
+        Gate::authorize('viewAny', JobPosting::class);
+
+        $jobPostings = JobPosting::query()
+            ->with(['requisition.position.division', 'creator'])
+            ->latest()
+            ->get();
+
         return view('job_postings.index', compact('jobPostings'));
     }
 
-    public function edit(JobPosting $jobPosting)
+    public function edit(JobPosting $jobPosting): View
     {
+        Gate::authorize('update', $jobPosting);
+
         return view('job_postings.edit', compact('jobPosting'));
     }
 
-    public function update(Request $request, JobPosting $jobPosting)
+    public function update(Request $request, JobPosting $jobPosting): RedirectResponse
     {
-        //Lowongan yang sudah ditutup tidak bisa diubah atau dibuka kembali
+        Gate::authorize('update', $jobPosting);
+
         if ($jobPosting->status === 'closed') {
-            return redirect()->back()->with('error', 'Lowongan yang sudah ditutup tidak dapat diubah.');
+            return back()->with('error', 'Closed job postings cannot be changed.');
         }
 
         if ($request->has('close_job')) {
+            $request->validate(['close_job' => ['accepted']]);
             $jobPosting->update(['status' => 'closed']);
-            return redirect()->route('job_postings.index')->with('success', 'Lowongan berhasil ditutup manual.');
+
+            return redirect()->route('job-postings.index')->with('success', 'Job posting closed.');
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'requirements' => 'nullable|string',
-            'deadline' => 'nullable|date|after_or_equal:today',
+            'title' => ['required', 'string', 'max:150'],
+            'description' => ['required', 'string', 'max:10000'],
+            'requirements' => ['nullable', 'string', 'max:10000'],
+            'deadline' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
         ]);
 
         $jobPosting->update($validated);
 
-        return redirect()->route('job_postings.index')->with('success', 'Detail lowongan berhasil diperbarui.');
+        return redirect()->route('job-postings.index')->with('success', 'Job posting updated.');
     }
 
-    public function destroy(JobPosting $jobPosting)
+    public function destroy(JobPosting $jobPosting): RedirectResponse
     {
-        //Lowongan yang sudah memiliki lamaran tidak dapat dihapus, hanya bisa ditutup
+        Gate::authorize('delete', $jobPosting);
+
         if ($jobPosting->applications()->exists()) {
-            return redirect()->back()->with('error', 'Gagal dihapus! Lowongan ini sudah memiliki pelamar. Anda hanya bisa menutupnya.');
+            return back()->with('error', 'Job postings with applicants cannot be deleted; close them instead.');
         }
 
         $jobPosting->delete();
 
-        return redirect()->route('job_postings.index')->with('success', 'Lowongan berhasil dihapus (masuk ke tempat sampah).');
+        return redirect()->route('job-postings.index')->with('success', 'Job posting deleted.');
     }
 }

@@ -28,7 +28,7 @@ class Requisition extends Model
 
     public function position(): BelongsTo
     {
-        return $this->belongsTo(Position::class);
+        return $this->belongsTo(Position::class)->withTrashed();
     }
 
     public function requester(): BelongsTo
@@ -41,7 +41,8 @@ class Requisition extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function jobPosting(): HasOne{
-        return $this -> hasOne(JobPosting::class);
+    public function jobPosting(): HasOne
+    {
+        return $this->hasOne(JobPosting::class);
     }
 }
