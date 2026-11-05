@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Requisition extends Model
@@ -21,6 +22,10 @@ class Requisition extends Model
         'reviewed_at',
     ];
 
+    protected $casts = [
+        'reviewed_at' => 'datetime',
+    ];
+
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
@@ -34,5 +39,9 @@ class Requisition extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function jobPosting(): HasOne{
+        return $this -> hasOne(JobPosting::class);
     }
 }
