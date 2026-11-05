@@ -30,17 +30,11 @@ class PositionPolicy
 
     public function update(User $user, Position $position): bool
     {
-        if ($user->role === 'hrd') {
-            return true;
-        }
-
-        return $user->role === 'division_manager'
-            && $user->division_id !== null
-            && $user->division_id === $position->division_id;
+        return $user->role === 'hrd';
     }
 
     public function delete(User $user, Position $position): bool
     {
-        return $this->update($user, $position);
+        return $user->role === 'hrd';
     }
 }
