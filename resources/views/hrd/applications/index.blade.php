@@ -9,7 +9,7 @@
         <ul role="alert">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
     @endif
     <table>
-        <thead><tr><th>Applicant</th><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>CV</th><th>Screening</th></tr></thead>
+        <thead><tr><th>Applicant</th><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>CV</th><th>Screening</th><th>Interview</th></tr></thead>
         <tbody>
             @forelse ($applications as $application)
                 <tr>
@@ -52,9 +52,34 @@
                             <span>Screening complete</span>
                         @endif
                     </td>
+                    <td>
+                        @if (in_array($application->status, ['screening_passed', 'interview'], true))
+                            @foreach ($application->interviews as $interview)
+                                <p>{{ $interview->scheduled_at->timezone('Asia/Jakarta')->format('d-m-Y H:i') }} — {{ $interview->interviewer->name }} ({{ $interview->status }})</p>
+                            @endforeach
+                            <details>
+                                <summary>Schedule interview</summary>
+                                <form action="{{ route('hrd.applications.interviews.store', $application) }}" method="POST">
+                                    @csrf
+                                    <label for="interviewer{{ $application->id }}">HRD interviewer</label>
+                                    <select id="interviewer{{ $application->id }}" name="interviewer_id" required>
+                                        <option value="">Select an interviewer</option>
+                                        @foreach ($interviewers as $hrdUser)
+                                            <option value="{{ $hrdUser->id }}">{{ $hrdUser->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label for="scheduled_at{{ $application->id }}">Date and time (Jakarta)</label>
+                                    <input id="scheduled_at{{ $application->id }}" type="datetime-local" name="scheduled_at" min="{{ now()->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') }}" required>
+                                    <button type="submit">Schedule</button>
+                                </form>
+                            </details>
+                        @else
+                            <span>Available after screening pass</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
-                <tr><td colspan="7">No applications received.</td></tr>
+                <tr><td colspan="8">No applications received.</td></tr>
             @endforelse
         </tbody>
     </table>

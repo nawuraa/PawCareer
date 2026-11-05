@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Interview extends Model
 {
@@ -30,5 +31,10 @@ class Interview extends Model
     public function interviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'interviewer_id');
+    }
+
+    public function statusHistories(): MorphMany
+    {
+        return $this->morphMany(StatusHistory::class, 'subject')->orderBy('created_at');
     }
 }

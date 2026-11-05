@@ -24,7 +24,7 @@ class ApplicationController extends Controller
         Gate::authorize('viewAny', Application::class);
 
         $applications = Application::query()
-            ->with(['jobPosting.requisition.position.division', 'applicant', 'statusHistories.changer'])
+            ->with(['jobPosting.requisition.position.division', 'applicant', 'statusHistories.changer', 'interviews.interviewer'])
             ->when(
                 Auth::user()->role === 'applicant',
                 fn ($query) => $query->where('applicant_id', Auth::id())
@@ -32,9 +32,13 @@ class ApplicationController extends Controller
             ->latest('submitted_at')
             ->get();
 
+        $interviewers = Auth::user()->role === 'hrd'
+            ? User::query()->where('role', 'hrd')->orderBy('name')->get()
+            : collect();
+
         return view(
             Auth::user()->role === 'hrd' ? 'hrd.applications.index' : 'applicant.applications.index',
-            compact('applications')
+            compact('applications', 'interviewers')
         );
     }
 

@@ -6,7 +6,7 @@
     <h1>My applications</h1>
     @if (session('success')) <p role="status">{{ session('success') }}</p> @endif
     <table>
-        <thead><tr><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>CV</th></tr></thead>
+        <thead><tr><th>Job</th><th>Division</th><th>Submitted</th><th>Status and history</th><th>Interviews</th><th>CV</th></tr></thead>
         <tbody>
             @forelse ($applications as $application)
                 <tr>
@@ -28,10 +28,17 @@
                             </ol>
                         </details>
                     </td>
+                    <td>
+                        @forelse ($application->interviews as $interview)
+                            <p>{{ $interview->scheduled_at->timezone('Asia/Jakarta')->format('d-m-Y H:i') }} — {{ $interview->status }}</p>
+                        @empty
+                            <span>No interview scheduled</span>
+                        @endforelse
+                    </td>
                     <td><a href="{{ route('applications.cv', $application) }}">Download my CV</a></td>
                 </tr>
             @empty
-                <tr><td colspan="5">You have not submitted any applications.</td></tr>
+                <tr><td colspan="6">You have not submitted any applications.</td></tr>
             @endforelse
         </tbody>
     </table>
