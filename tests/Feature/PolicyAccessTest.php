@@ -54,4 +54,20 @@ class PolicyAccessTest extends TestCase
 
         $this->assertTrue($user->can('view', $position));
     }
+
+    public function test_division_manager_cannot_manage_positions(): void
+    {
+        $division = Division::create(['name' => 'Engineering']);
+        $position = Position::create([
+            'division_id' => $division->id,
+            'name' => 'Backend Engineer',
+        ]);
+        $user = User::factory()->create([
+            'role' => 'division_manager',
+            'division_id' => $division->id,
+        ]);
+
+        $this->assertFalse($user->can('update', $position));
+        $this->assertFalse($user->can('delete', $position));
+    }
 }
