@@ -1,22 +1,32 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ApplicantJobPostingController;
+use App\Http\Controllers\ApplicantProfileController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RequisitionController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (Request $request) {
+    if (! $request->user()) {
+        return redirect()->route('login');
+    }
+
+    return match ($request->user()->role) {
+        'hrd' => redirect()->route('divisions.index'),
+        'division_manager' => redirect()->route('requisitions.index'),
+        default => redirect()->route('applicant.jobs.index'),
+    };
 });
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    Route::get('/register', function () {
-        return response()->json(['message' => 'Registration endpoint']);
-    })->name('register');
+    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
@@ -34,7 +44,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/job-postings/review', [JobPostingController::class, 'indexReview'])->name('job_postings.review');
         Route::post('/job-postings/review/{requisition}', [JobPostingController::class, 'processReview'])->name('job_postings.process_review');
         Route::resource('job-postings', JobPostingController::class)->except(['create', 'store', 'show']);
+        Route::get('/hrd/applications', [ApplicationController::class, 'index'])->name('hrd.applications.index');
     });
+
+    Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');
 
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'dashboard ok']);
@@ -42,5 +55,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('role:division_manager')->group(function () {
         Route::resource('requisitions', RequisitionController::class)->except(['show']);
+    });
+
+    Route::middleware('role:applicant')->group(function () {
+        Route::get('/jobs', [ApplicantJobPostingController::class, 'index'])->name('applicant.jobs.index');
+        Route::get('/jobs/{jobPosting}', [ApplicantJobPostingController::class, 'show'])->name('applicant.jobs.show');
+        Route::post('/jobs/{jobPosting}/applications', [ApplicationController::class, 'store'])->name('applications.store');
+        Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/profile', [ApplicantProfileController::class, 'edit'])->name('applicant.profile.edit');
+        Route::put('/profile', [ApplicantProfileController::class, 'update'])->name('applicant.profile.update');
     });
 });

@@ -21,10 +21,29 @@ class ApplicantRegistrationTest extends TestCase
             'division_id' => 99,
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('applicant.profile.edit'));
 
         $user = User::where('email', 'applicant@example.com')->firstOrFail();
         $this->assertSame('applicant', $user->role);
         $this->assertNull($user->division_id);
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_registration_page_renders_and_registration_validation_returns_to_form(): void
+    {
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('Create your account')
+            ->assertSee('password_confirmation');
+
+        $this->from(route('register'))
+            ->post(route('register.post'), [
+                'name' => '',
+                'email' => 'not-an-email',
+                'password' => 'short',
+                'password_confirmation' => 'different',
+            ])
+            ->assertRedirect(route('register'))
+            ->assertSessionHasErrors(['name', 'email', 'password']);
     }
 }

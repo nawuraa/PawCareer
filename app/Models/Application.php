@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Application extends Model
 {
-    protected $fillable = ['job_posting_id', 'applicant_id', 'status'];
+    protected $fillable = [
+        'job_posting_id',
+        'applicant_id',
+        'cv_path',
+        'status',
+        'submitted_at',
+    ];
+
+    protected $casts = [
+        'submitted_at' => 'datetime',
+    ];
 
     public function jobPosting(): BelongsTo
     {
