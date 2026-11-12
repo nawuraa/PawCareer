@@ -20,6 +20,6 @@ class DashboardController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        return view('dashboard.manager', compact('newEmployees'));
+        return view('manager.dashboard.index', compact('newEmployees'));
     }
 }

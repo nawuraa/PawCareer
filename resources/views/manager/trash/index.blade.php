@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=device-width, initial-scale=1.0">
-    <title>PawCareer - Karyawan Baru</title>
+    <title>PawCareer - Tempat Sampah</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
@@ -45,19 +45,12 @@
             <a href="{{ route('requisitions.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-file-text text-lg"></i> Pengajuan Kebutuhan
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2.5 bg-[#fdfbf6] text-[#0c251e] rounded-full font-semibold text-sm">
-                <i class="ph-fill ph-user-plus text-lg"></i> Karyawan Baru
+            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
+                <i class="ph ph-user-plus text-lg"></i> Karyawan Baru
             </a>
-            <a href="{{ route('trash.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
-                <i class="ph ph-trash text-lg"></i> Tempat Sampah
-            </a>
-
-            <div class="pt-6 pb-2 px-4">
-                <p class="text-[10px] font-bold tracking-wider text-gray-500">LAINNYA</p>
-            </div>
-            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
-                <div class="flex items-center gap-3"><i class="ph ph-bell text-lg"></i> Notifikasi</div>
-                <span class="bg-[#f18c54] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">1</span>
+            <!-- Menu Aktif: Tempat Sampah -->
+            <a href="{{ route('trash.index') }}" class="flex items-center gap-3 px-4 py-2.5 bg-[#fdfbf6] text-[#0c251e] rounded-full font-semibold text-sm">
+                <i class="ph-fill ph-trash text-lg"></i> Tempat Sampah
             </a>
         </nav>
 
@@ -77,52 +70,53 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 h-full overflow-y-auto relative">
         <div class="p-8 max-w-7xl mx-auto">
+            
             <div class="flex justify-between items-center mb-8"></div>
 
             <!-- Header Halaman -->
-            <div class="mb-8">
-                <p class="text-[11px] font-bold text-[#4a6e55] tracking-wider mb-1 uppercase">Medis & Bedah</p>
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">Karyawan baru</h2>
-                <p class="text-sm text-gray-500">Kandidat yang diterima di divisi Anda. Data pribadi hanya terlihat untuk yang diterima.</p>
+            <div class="mb-6">
+                <p class="text-[11px] font-bold text-[#4a6e55] tracking-wider mb-1 uppercase">Soft Delete</p>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Tempat sampah</h2>
+                <p class="text-sm text-gray-500">Pengajuan milik Anda yang dihapus dapat dipulihkan dalam 30 hari.</p>
             </div>
 
-            <!-- Kartu Data Karyawan -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- List Data yang Dihapus -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-6 shadow-sm flex items-center justify-between">
                 
-                <!-- Kartu Karyawan: Kevin Ananda -->
-                <div class="bg-white rounded-[20px] border border-gray-200 p-6 shadow-sm">
-                    
-                    <!-- Header Kartu: Foto, Nama, Posisi -->
-                    <div class="flex items-center gap-4 mb-5">
-                        <div class="w-12 h-12 rounded-full bg-[#d9f2e6] text-[#0c251e] font-bold text-sm flex items-center justify-center">
-                            KA
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-gray-900 text-[15px]">Kevin Ananda</h3>
-                            <p class="text-[13px] text-[#4a6e55] mt-0.5">Asisten Bedah</p>
-                        </div>
-                    </div>
-
-                    <!-- Kotak Tanggal Mulai -->
-                    <div class="bg-[#f4ebe1] rounded-xl p-4 mb-5">
-                        <p class="text-xs text-gray-600 mb-1">Mulai bekerja sejak</p>
-                        <p class="font-bold text-gray-900">Sel, 20 Oktober 2026</p>
-                    </div>
-
-                    <!-- Info Kontak -->
-                    <div class="space-y-2.5">
-                        <p class="text-[13px] text-gray-500">Medis & Bedah</p>
-                        <div class="flex items-center gap-2 text-[13px] text-gray-500">
-                            <i class="ph ph-envelope-simple text-gray-400 text-lg"></i>
-                            kevin.ananda@gmail.com
-                        </div>
-                        <div class="flex items-center gap-2 text-[13px] text-gray-500">
-                            <i class="ph ph-phone text-gray-400 text-lg"></i>
-                            0852-1212-3434
-                        </div>
+                <!-- Kiri: Badge & Info Data -->
+                <div class="flex items-center gap-4">
+                    <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wider">PENGAJUAN</span>
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-[15px]">Asisten Bedah · 1 orang</h3>
+                        <p class="text-[13px] text-gray-500 mt-0.5">Duplikat pengajuan. · dihapus 30 Okt 2026</p>
                     </div>
                 </div>
+                
+                <!-- Kanan: Progress Bar & Tombol -->
+                <div class="flex items-center gap-6">
+                    <!-- Countdown bar -->
+                    <div class="w-36">
+                        <p class="text-[11px] text-[#0c251e] font-semibold text-right mb-1.5">24 hari tersisa</p>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 flex justify-end">
+                            <div class="bg-[#0c251e] h-1.5 rounded-full" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Pulihkan -->
+                    <button class="flex items-center gap-1.5 bg-[#d9f2e6] hover:bg-[#c1e8d5] text-[#0c251e] text-xs font-bold px-4 py-2 rounded-full transition-colors border border-[#c1e8d5]">
+                        <i class="ph ph-arrow-counter-clockwise text-sm font-bold"></i> Pulihkan
+                    </button>
+                </div>
+            </div>
 
+            <!-- Banner Info Aturan -->
+            <div class="bg-[#e9f5f0] border border-[#d1e8df] rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-start gap-3">
+                    <i class="ph ph-info text-[#0c251e] text-lg mt-0.5"></i>
+                    <p class="text-[11px] text-[#0c251e] leading-relaxed">
+                        Posisi tidak dapat dipulihkan bila divisinya juga terhapus. Nama data di tempat sampah tetap terpakai sampai dipulihkan atau dibuang permanen. Pembuangan otomatis harian setelah 30 hari.
+                    </p>
+                </div>
             </div>
 
         </div>
