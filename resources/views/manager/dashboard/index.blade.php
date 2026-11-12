@@ -45,18 +45,11 @@
             <a href="{{ route('requisitions.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-file-text text-lg"></i> Pengajuan Kebutuhan
             </a>
-            <a href="" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
+            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-user-plus text-lg"></i> Karyawan Baru
             </a>
             <a href="{{ route('trash.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-trash text-lg"></i> Tempat Sampah
-            </a>
-
-            <div class="pt-6 pb-2 px-4">
-                <p class="text-[10px] font-bold tracking-wider text-gray-500">LAINNYA</p>
-            </div>
-            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
-                <div class="flex items-center gap-3"><i class="ph ph-bell text-lg"></i> Notifikasi</div>
             </a>
         </nav>
 

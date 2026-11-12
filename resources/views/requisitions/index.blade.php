@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="mt-4 pb-4 border-b border-white/10">
-                <p class="text-[11px] text-gray-400">Portal <span class="text-white font-semibold">Manajer Divisi</span> · Medis & Bedah</p>
+                <p class="text-[11px] text-gray-400">Portal <span class="text-white font-semibold">Manajer Divisi</span></p>
             </div>
         </div>
 
@@ -46,19 +46,11 @@
             <a href="{{ route('requisitions.index') }}" class="flex items-center gap-3 px-4 py-2.5 bg-[#fdfbf6] text-[#0c251e] rounded-full font-semibold text-sm">
                 <i class="ph-fill ph-file-text text-lg"></i> Pengajuan Kebutuhan
             </a>
-            <a href="" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
+            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-user-plus text-lg"></i> Karyawan Baru
             </a>
             <a href="{{ route('trash.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
                 <i class="ph ph-trash text-lg"></i> Tempat Sampah
-            </a>
-
-            <div class="pt-6 pb-2 px-4">
-                <p class="text-[10px] font-bold tracking-wider text-gray-500">LAINNYA</p>
-            </div>
-            <a href="#" class="flex items-center justify-between px-4 py-2.5 text-gray-400 hover:text-white transition-colors text-sm">
-                <div class="flex items-center gap-3"><i class="ph ph-bell text-lg"></i> Notifikasi</div>
-                <span class="bg-[#f18c54] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">1</span>
             </a>
         </nav>
 
@@ -300,24 +292,6 @@
 
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Kartu Info Bawah -->
-            <div class="grid grid-cols-2 gap-4 pb-20">
-                <div class="bg-[#e9f5f0] border border-[#d1e8df] rounded-xl p-4 flex items-start gap-3">
-                    <i class="ph ph-info text-[#0c251e] text-lg mt-0.5"></i>
-                    <div>
-                        <p class="text-[11px] text-[#0c251e] leading-relaxed">Pengajuan yang ditolak bersifat final dan tidak dapat diajukan ulang. Buat pengajuan baru bila masih membutuhkan.</p>
-                    </div>
-                    <span class="text-[10px] font-bold text-gray-400 ml-auto uppercase tracking-wider">BR-13</span>
-                </div>
-                <div class="bg-[#e9f5f0] border border-[#d1e8df] rounded-xl p-4 flex items-start gap-3">
-                    <i class="ph ph-info text-[#0c251e] text-lg mt-0.5"></i>
-                    <div>
-                        <p class="text-[11px] text-[#0c251e] leading-relaxed">Satu divisi dapat memiliki beberapa Manajer. Pengajuan Manajer lain hanya dapat dilihat.</p>
-                    </div>
-                    <span class="text-[10px] font-bold text-gray-400 ml-auto uppercase tracking-wider">A-26</span>
-                </div>
             </div>
 
         </div>

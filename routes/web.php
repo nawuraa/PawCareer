@@ -13,6 +13,7 @@ use App\Http\Controllers\HiringDecisionController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RequisitionController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -68,10 +69,11 @@ Route::middleware(['auth'])->group(function () {
     // });
 
     Route::middleware('role:division_manager')->group(function () {
-        Route::get('/dashboard/manager', [DashboardController::class, 'manager'])->name('dashboard.manager');
-        Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
+        Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('dashboard.manager');
+        Route::get('/manager/trash', [TrashController::class, 'index'])->name('trash.index');
         Route::post('/trash/requisitions/{id}/restore', [TrashController::class, 'restoreRequisition'])->name('trash.requisitions.restore');
-        Route::resource('requisitions', RequisitionController::class)->except(['show']);
+        Route::resource('manager/requisitions', RequisitionController::class)->except(['show']);
+        Route::get('manager/employees', [EmployeeController::class, 'index'])->name('employees.index');
     });
     
 
