@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\ApplicationNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,24 @@ class ApplicationScreeningController extends Controller
                 'new_status' => $validated['status'],
                 'changed_by' => Auth::id(),
                 'reason' => $validated['reason'],
+                'created_at' => now(),
+            ]);
+
+            $lockedApplication->loadMissing('jobPosting');
+            $passed = $validated['status'] === 'screening_passed';
+
+            ApplicationNotification::create([
+                'user_id' => $lockedApplication->applicant_id,
+                'type' => 'screening_updated',
+                'data' => [
+                    'application_id' => $lockedApplication->id,
+                    'job_title' => $lockedApplication->jobPosting->title,
+                    'status' => $validated['status'],
+                    'message' => $passed
+                        ? "Congratulations! You passed the screening stage for {$lockedApplication->jobPosting->title}."
+                        : "Your application for {$lockedApplication->jobPosting->title} did not pass the screening stage.",
+                    'reason' => $validated['reason'],
+                ],
                 'created_at' => now(),
             ]);
         });
