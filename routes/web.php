@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ApplicantJobPostingController;
+use App\Http\Controllers\ApplicantNotificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TrashController;
 use App\Http\Controllers\ApplicantProfileController;
@@ -64,10 +65,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');
 
-    // Route::get('/dashboard', function () {
-    //     return response()->json(['message' => 'dashboard ok']);
-    // });
-
     Route::middleware('role:division_manager')->group(function () {
         Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('dashboard.manager');
         Route::get('/manager/trash', [TrashController::class, 'index'])->name('trash.index');
@@ -75,7 +72,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('manager/requisitions', RequisitionController::class)->except(['show']);
         Route::get('manager/employees', [EmployeeController::class, 'index'])->name('employees.index');
     });
-    
 
     Route::middleware('role:applicant')->group(function () {
         Route::get('/jobs', [ApplicantJobPostingController::class, 'index'])->name('applicant.jobs.index');
@@ -84,5 +80,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
         Route::get('/profile', [ApplicantProfileController::class, 'edit'])->name('applicant.profile.edit');
         Route::put('/profile', [ApplicantProfileController::class, 'update'])->name('applicant.profile.update');
+        Route::get('/notifications', [ApplicantNotificationController::class, 'index'])->name('applicant.notifications.index');
+        Route::patch('/notifications/{notification}/read', [ApplicantNotificationController::class, 'markAsRead'])->name('applicant.notifications.read');
+        Route::post('/notifications/read-all', [ApplicantNotificationController::class, 'markAllAsRead'])->name('applicant.notifications.read_all');
     });
 });

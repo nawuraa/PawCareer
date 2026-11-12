@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\ApplicationNotification;
 use App\Models\Interview;
 use App\Models\StatusHistory;
 use App\Models\User;
@@ -91,6 +92,23 @@ class InterviewController extends Controller
                     'created_at' => now(),
                 ]);
             }
+
+            $lockedApplication->loadMissing('jobPosting');
+            $formattedDate = $scheduledAt->timezone('Asia/Jakarta')->format('d M Y, H:i');
+
+            ApplicationNotification::create([
+                'user_id' => $lockedApplication->applicant_id,
+                'type' => 'interview_scheduled',
+                'data' => [
+                    'application_id' => $lockedApplication->id,
+                    'interview_id' => $interview->id,
+                    'job_title' => $lockedApplication->jobPosting->title,
+                    'status' => 'interview',
+                    'scheduled_at' => $formattedDate,
+                    'message' => "Your interview for {$lockedApplication->jobPosting->title} is scheduled on {$formattedDate} WIB.",
+                ],
+                'created_at' => now(),
+            ]);
         });
 
         return redirect()->route('hrd.applications.index')->with('success', 'Interview scheduled.');
