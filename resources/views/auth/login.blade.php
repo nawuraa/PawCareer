@@ -1,12 +1,14 @@
 @extends('layouts.guest')
 
-@section('title', 'Sign in | PawCareer')
+@section('title', 'Masuk | PawCareer')
 
 @section('content')
-    <span class="eyebrow">Welcome back</span>
-    <h2>Sign in to PawCareer</h2>
-    <p class="intro">Continue your journey in veterinary care.</p>
+    {{-- HEADER FORM --}}
+    <span class="eyebrow">Selamat datang kembali</span>
+    <h2>Masuk ke PawCareer</h2>
+    <p class="intro">Lanjutkan perjalanan karier Anda bersama Klinik Hewan Sahabat Satwa.</p>
 
+    {{-- PESAN STATUS & ERROR --}}
     @if (session('status'))
         <p class="alert" role="status">{{ session('status') }}</p>
     @endif
@@ -14,23 +16,28 @@
         <p class="alert" role="alert">{{ $errors->first() }}</p>
     @endif
 
+    {{-- FORM LOGIN --}}
     <form action="{{ route('login.post') }}" method="POST">
         @csrf
         <div class="field">
-            <label for="email">Email address</label>
-            <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" placeholder="you@example.com" required autofocus aria-describedby="@error('email') email-error @enderror">
+            <label for="email">Alamat email</label>
+            <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" placeholder="nama@email.com" required autofocus aria-describedby="@error('email') email-error @enderror">
             @error('email') <p class="error" id="email-error">{{ $message }}</p> @enderror
         </div>
+
         <div class="field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            <label for="password">Kata sandi</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi" required>
         </div>
+
         <label class="remember">
             <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
-            <span>Remember me</span>
+            <span>Ingat saya</span>
         </label>
-        <button class="submit" type="submit">Sign in</button>
+
+        <button class="submit" type="submit">Masuk</button>
     </form>
 
-    <p class="switch">New to PawCareer? <a href="{{ route('register') }}">Create an applicant account</a></p>
+    {{-- LINK DAFTAR --}}
+    <p class="switch">Belum punya akun PawCareer? <a href="{{ route('register') }}">Buat akun pelamar</a></p>
 @endsection
