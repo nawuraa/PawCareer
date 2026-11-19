@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\ApplicationNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +70,25 @@ class HiringDecisionController extends Controller
                 'new_status' => $result,
                 'changed_by' => Auth::id(),
                 'reason' => 'Final hiring decision recorded.',
+                'created_at' => now(),
+            ]);
+
+            $lockedApplication->loadMissing('jobPosting');
+            $accepted = $result === 'accepted';
+
+            ApplicationNotification::create([
+                'user_id' => $lockedApplication->applicant_id,
+                'type' => 'hiring_decision',
+                'data' => [
+                    'application_id' => $lockedApplication->id,
+                    'job_title' => $lockedApplication->jobPosting->title,
+                    'status' => $result,
+                    'start_date' => $accepted ? $validated['start_date'] : null,
+                    'message' => $accepted
+                        ? "Congratulations! You have been accepted for {$lockedApplication->jobPosting->title}."
+                        : "Thank you for applying. Your application for {$lockedApplication->jobPosting->title} was not selected.",
+                    'note' => $validated['note'],
+                ],
                 'created_at' => now(),
             ]);
         });

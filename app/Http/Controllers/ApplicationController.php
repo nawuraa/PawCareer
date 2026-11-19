@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\ApplicationNotification;
 use App\Models\JobPosting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -97,13 +98,15 @@ class ApplicationController extends Controller
                 throw new \RuntimeException('The CV could not be stored.');
             }
 
-            Application::create([
+            $application = Application::create([
                 'job_posting_id' => $posting->id,
                 'applicant_id' => $user->id,
                 'cv_path' => $path,
                 'status' => 'submitted',
                 'submitted_at' => now(),
-            ])->statusHistories()->create([
+            ]);
+
+            $application->statusHistories()->create([
                 'old_status' => null,
                 'new_status' => 'submitted',
                 'changed_by' => $user->id,
@@ -111,6 +114,17 @@ class ApplicationController extends Controller
                 'created_at' => now(),
             ]);
 
+            ApplicationNotification::create([
+                'user_id' => $user->id,
+                'type' => 'application_submitted',
+                'data' => [
+                    'application_id' => $application->id,
+                    'job_title' => $posting->title,
+                    'status' => 'submitted',
+                    'message' => "Your application for {$posting->title} has been submitted.",
+                ],
+                'created_at' => now(),
+            ]);
         });
 
         return redirect()->route('applications.index')->with('success', 'Your application was submitted.');

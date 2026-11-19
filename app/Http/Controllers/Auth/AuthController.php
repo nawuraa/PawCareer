@@ -89,7 +89,7 @@ class AuthController extends Controller
     {
         return match ($user->role) {
             'hrd' => route('divisions.index'),
-            'division_manager' => route('requisitions.index'),
+            'division_manager' => route('dashboard.manager'),
             default => route('applicant.jobs.index'),
         };
     }

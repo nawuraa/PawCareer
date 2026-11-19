@@ -53,7 +53,7 @@
                 <span>Pengajuan Kebutuhan</span>
             </a>
 
-            <a href="#"
+            <a href="{{ route('employees.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">
                 <i class="ph ph-user-plus text-lg"></i>
                 <span>Karyawan Baru</span>
