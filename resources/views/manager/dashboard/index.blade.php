@@ -204,7 +204,7 @@
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-bold text-gray-900 text-lg">Karyawan baru</h3>
-                            <a href="" class="text-xs font-semibold text-gray-600 hover:text-gray-900 flex items-center gap-1">Lihat <i class="ph ph-arrow-right"></i></a>
+                            <a href="{{ route('employees.index') }}" class="text-xs font-semibold text-gray-600 hover:text-gray-900 flex items-center gap-1">Lihat <i class="ph ph-arrow-right"></i></a>
                         </div>
                         
                         @forelse(collect($newEmployees ?? [])->take(3) as $emp)
