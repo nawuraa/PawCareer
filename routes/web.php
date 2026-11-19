@@ -9,18 +9,25 @@ use App\Http\Controllers\ApplicantProfileController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApplicationScreeningController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\HiringDecisionController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RequisitionController;
-use App\Http\Controllers\EmployeeController;
+use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (Request $request) {
     if (! $request->user()) {
-        return redirect()->route('login');
+        try {
+            $jobPostings = JobPosting::with(['division', 'position'])->latest()->get();
+        } catch (\Throwable $e) {
+            $jobPostings = collect();
+        }
+
+        return view('welcome', compact('jobPostings'));
     }
 
     return match ($request->user()->role) {
@@ -28,7 +35,7 @@ Route::get('/', function (Request $request) {
         'division_manager' => redirect()->route('requisitions.index'),
         default => redirect()->route('applicant.jobs.index'),
     };
-});
+})->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

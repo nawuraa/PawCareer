@@ -1,40 +1,48 @@
 @extends('layouts.guest')
 
-@section('title', 'Create an account | PawCareer')
+@section('title', 'Buat Akun | PawCareer')
 
 @section('content')
-    <span class="eyebrow">Start your journey</span>
-    <h2>Create your account</h2>
-    <p class="intro">Register as an applicant to explore veterinary-care opportunities.</p>
+    {{-- HEADER FORM --}}
+    <span class="eyebrow">Mulai perjalanan Anda</span>
+    <h2>Buat akun pelamar</h2>
+    <p class="intro">Daftar sebagai pelamar untuk menjelajahi peluang karier di Klinik Hewan Sahabat Satwa.</p>
 
+    {{-- PESAN ERROR --}}
     @if ($errors->any())
         <p class="alert" role="alert">{{ $errors->first() }}</p>
     @endif
 
+    {{-- FORM REGISTRASI --}}
     <form action="{{ route('register.post') }}" method="POST">
         @csrf
         <div class="field">
-            <label for="name">Full name</label>
-            <input id="name" name="name" type="text" autocomplete="name" value="{{ old('name') }}" placeholder="Your full name" maxlength="255" required autofocus>
+            <label for="name">Nama lengkap</label>
+            <input id="name" name="name" type="text" autocomplete="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap Anda" maxlength="255" required autofocus>
             @error('name') <p class="error">{{ $message }}</p> @enderror
         </div>
+
         <div class="field">
-            <label for="email">Email address</label>
-            <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" placeholder="you@example.com" maxlength="255" required>
+            <label for="email">Alamat email</label>
+            <input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" placeholder="nama@email.com" maxlength="255" required>
             @error('email') <p class="error">{{ $message }}</p> @enderror
         </div>
+
         <div class="field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required>
-            <p class="hint">Use at least 8 characters.</p>
+            <label for="password">Kata sandi</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Minimal 8 karakter" minlength="8" required>
+            <p class="hint">Gunakan minimal 8 karakter.</p>
             @error('password') <p class="error">{{ $message }}</p> @enderror
         </div>
+
         <div class="field">
-            <label for="password_confirmation">Confirm password</label>
-            <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" placeholder="Enter your password again" minlength="8" required>
+            <label for="password_confirmation">Konfirmasi kata sandi</label>
+            <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" placeholder="Ulangi kata sandi Anda" minlength="8" required>
         </div>
-        <button class="submit" type="submit">Create applicant account</button>
+
+        <button class="submit" type="submit">Buat akun pelamar</button>
     </form>
 
-    <p class="switch">Already have an account? <a href="{{ route('login') }}">Sign in</a></p>
+    {{-- LINK LOGIN --}}
+    <p class="switch">Sudah punya akun? <a href="{{ route('login') }}">Masuk sekarang</a></p>
 @endsection
