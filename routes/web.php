@@ -76,7 +76,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('dashboard.manager');
         Route::get('/manager/trash', [TrashController::class, 'index'])->name('trash.index');
         Route::post('/trash/requisitions/{id}/restore', [TrashController::class, 'restoreRequisition'])->name('trash.requisitions.restore');
-        Route::resource('manager/requisitions', RequisitionController::class)->except(['show']);
+        Route::prefix('manager')->group(function () {
+        Route::resource('requisitions', RequisitionController::class)->except(['show']);});
         Route::get('manager/employees', [EmployeeController::class, 'index'])->name('employees.index');
     });
 
