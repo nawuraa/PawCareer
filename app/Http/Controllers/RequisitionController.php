@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApplicationNotification;
 use App\Models\Position;
 use App\Models\Requisition;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,7 +48,24 @@ class RequisitionController extends Controller
         $validated = $this->validateRequisition($request);
         $validated['requested_by'] = Auth::id();
 
-        Requisition::create($validated);
+        $requisition = Requisition::create($validated);
+        $requisition->load('position.division');
+
+        // Kirim notifikasi terpisah ke semua akun HRD
+        $hrdUsers = User::where('role', 'hrd')->get();
+        foreach ($hrdUsers as $hrd) {
+            ApplicationNotification::create([
+                'user_id' => $hrd->id,
+                'type'    => 'requisition_submitted',
+                'data'    => [
+                    'requisition_id' => $requisition->id,
+                    'job_title'      => $requisition->position->name ?? 'Posisi Baru',
+                    'status'         => 'submitted',
+                    'message'        => 'Pengajuan staf baru (' . $requisition->quantity . ' orang) untuk posisi ' . ($requisition->position->name ?? '-') . ' dari Divisi ' . ($requisition->position->division->name ?? '-') . '.',
+                ],
+                'created_at' => now(),
+            ]);
+        }
 
         return redirect()->route('requisitions.index')->with('success', 'Requisition submitted for HRD review.');
     }

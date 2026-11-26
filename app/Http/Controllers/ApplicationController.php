@@ -129,6 +129,22 @@ class ApplicationController extends Controller
                 ],
                 'created_at' => now(),
             ]);
+
+            // Kirim notifikasi terpisah ke semua akun HRD
+            $hrdUsers = User::where('role', 'hrd')->get();
+            foreach ($hrdUsers as $hrd) {
+                ApplicationNotification::create([
+                    'user_id' => $hrd->id,
+                    'type'    => 'new_application_received',
+                    'data'    => [
+                        'application_id' => $application->id,
+                        'job_title'      => $posting->title,
+                        'status'         => 'submitted',
+                        'message'        => "Lamaran baru masuk dari {$user->name} untuk posisi {$posting->title}.",
+                    ],
+                    'created_at' => now(),
+                ]);
+            }
         });
 
         return redirect()->route('applications.index')->with('success', 'Your application was submitted.');
