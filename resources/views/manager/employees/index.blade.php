@@ -18,8 +18,12 @@
 
         @forelse($newEmployees as $emp)
             @php
-                $empInitials = collect(explode(' ', $emp->user->name))->map(fn($n) => substr($n, 0, 1))->take(2)->join('');
+                $empName = $emp->applicant->name ?? 'Karyawan';
+                $empInitials = collect(explode(' ', $empName))->map(fn($n) => substr($n, 0, 1))->take(2)->join('');
                 $divisionName = $emp->jobPosting->requisition->position->division->name ?? 'Divisi Anda';
+                $startDate = $emp->hiringDecision?->start_date
+                    ? \Carbon\Carbon::parse($emp->hiringDecision->start_date)->translatedFormat('D, d F Y')
+                    : $emp->updated_at->translatedFormat('D, d F Y');
             @endphp
 
             {{-- Kartu Karyawan --}}
@@ -31,7 +35,7 @@
                         {{ $empInitials }}
                     </div>
                     <div>
-                        <h3 class="font-bold text-[#0E271F] text-[15px]">{{ $emp->user->name }}</h3>
+                        <h3 class="font-bold text-[#0E271F] text-[15px]">{{ $empName }}</h3>
                         <p class="text-[13px] text-[#06614B] mt-0.5">{{ $emp->jobPosting->requisition->position->name ?? 'Posisi' }}</p>
                     </div>
                 </div>
@@ -39,7 +43,7 @@
                 {{-- Kotak Tanggal Mulai --}}
                 <div class="bg-[#FFEBD2] rounded-xl p-4 mb-5">
                     <p class="text-xs text-[#536961] mb-1">Mulai bekerja sejak</p>
-                    <p class="font-bold text-[#0E271F]">{{ $emp->updated_at->translatedFormat('D, d F Y') }}</p>
+                    <p class="font-bold text-[#0E271F]">{{ $startDate }}</p>
                 </div>
 
                 {{-- Info Kontak --}}
@@ -47,11 +51,11 @@
                     <p class="text-[13px] text-[#536961]">{{ $divisionName }}</p>
                     <div class="flex items-center gap-2 text-[13px] text-[#536961]">
                         <i class="ph ph-envelope-simple text-[#536961] text-lg"></i>
-                        {{ $emp->user->email }}
+                        {{ $emp->applicant->email ?? '-' }}
                     </div>
                     <div class="flex items-center gap-2 text-[13px] text-[#536961]">
                         <i class="ph ph-phone text-[#536961] text-lg"></i>
-                        {{ $emp->user->phone ?? 'Belum ada nomor telepon' }}
+                        {{ $emp->applicant->applicantProfile?->phone ?? 'Belum ada nomor telepon' }}
                     </div>
                 </div>
             </div>
