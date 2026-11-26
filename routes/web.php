@@ -82,6 +82,8 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     // ================= Umum (semua user login) =================
     Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');
     Route::get('/portal/notifications', [DashboardController::class, 'notifications'])->name('portal.notifications.index');
+    Route::patch('/portal/notifications/{notification}/read', [ApplicantNotificationController::class, 'markAsRead'])->name('portal.notifications.read');
+    Route::post('/portal/notifications/read-all', [ApplicantNotificationController::class, 'markAllAsRead'])->name('portal.notifications.read_all');
 
     // ================= Division Manager =================
     Route::middleware('role:division_manager')->group(function () {
