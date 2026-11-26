@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Notifikasi — PawCareer')
@@ -5,16 +6,31 @@
 @section('content')
 <div class="max-w-4xl mx-auto">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-widest text-[#06614B] mb-1">PORTAL PELAMAR</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-[#06614B] mb-1">
+                @if (auth()->user()->role === 'hrd')
+                    PORTAL HRD
+                @elseif (auth()->user()->role === 'division_manager')
+                    PORTAL MANAJER DIVISI
+                @else
+                    PORTAL PELAMAR
+                @endif
+            </p>
             <h1 class="font-display text-3xl font-bold text-[#0E271F]">Notifikasi</h1>
-            <p class="mt-1 text-sm text-[#536961]">Pembaruan status lamaran, jadwal wawancara, dan keputusan HRD.</p>
+            <p class="mt-1 text-sm text-[#536961]">
+                @if (auth()->user()->role === 'hrd')
+                    Pemberitahuan pengajuan staf baru dari manajer divisi dan lamaran kandidat yang masuk.
+                @elseif (auth()->user()->role === 'division_manager')
+                    Status persetujuan pengajuan staf dari HRD dan informasi karyawan baru yang diterima di divisi Anda.
+                @else
+                    Pembaruan status lamaran, jadwal wawancara, dan keputusan HRD.
+                @endif
+            </p>
         </div>
 
         @if ($notifications->whereNull('read_at')->count() > 0)
-            <form action="{{ route('applicant.notifications.read_all') }}" method="POST" class="m-0">
+            <form action="{{ route('portal.notifications.read_all') }}" method="POST" class="m-0">
                 @csrf
                 <button type="submit"
                         class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D2F0E4] hover:bg-[#B8E8D4] text-[#06614B] text-xs font-semibold transition-colors cursor-pointer">
@@ -27,7 +43,6 @@
         @endif
     </div>
 
-    {{-- Flash message --}}
     @if (session('success'))
         <div class="mb-6 flex items-center gap-3 rounded-xl border border-[#298646]/30 bg-[#CCF4D3] px-4 py-3 text-sm font-medium text-[#00682A]" role="status">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -35,7 +50,6 @@
         </div>
     @endif
 
-    {{-- Notification List --}}
     <div class="space-y-3">
         @forelse ($notifications as $notification)
             @php
@@ -46,7 +60,7 @@
                     <div class="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 {{ $isUnread ? 'bg-[#F09A53]' : 'bg-[#E3DDD1]' }}"></div>
                     <div class="min-w-0">
                         <p class="text-sm {{ $isUnread ? 'font-bold text-[#0E271F]' : 'font-medium text-[#0E271F]' }}">
-                            {{ $notification->data['message'] ?? 'Pembaruan lamaran' }}
+                            {{ $notification->data['message'] ?? 'Pembaruan sistem' }}
                         </p>
 
                         @if (!empty($notification->data['reason']))
@@ -74,7 +88,7 @@
                 </div>
 
                 @if ($isUnread)
-                    <form action="{{ route('applicant.notifications.read', $notification) }}" method="POST" class="shrink-0 m-0">
+                    <form action="{{ route('portal.notifications.read', $notification) }}" method="POST" class="shrink-0 m-0">
                         @csrf
                         @method('PATCH')
                         <button type="submit"
@@ -92,7 +106,15 @@
                     </svg>
                 </div>
                 <p class="font-display text-base font-bold text-[#0E271F]">Belum ada notifikasi</p>
-                <p class="text-xs text-[#536961] mt-1">Setiap pembaruan mengenai lamaran Anda akan muncul di sini.</p>
+                <p class="text-xs text-[#536961] mt-1">
+                    @if (auth()->user()->role === 'hrd')
+                        Pemberitahuan pengajuan staf baru dan lamaran masuk akan muncul di sini.
+                    @elseif (auth()->user()->role === 'division_manager')
+                        Hasil tinjauan pengajuan staf dan informasi karyawan baru di divisi Anda akan muncul di sini.
+                    @else
+                        Setiap pembaruan mengenai lamaran Anda akan muncul di sini.
+                    @endif
+                </p>
             </div>
         @endforelse
     </div>
