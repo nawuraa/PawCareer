@@ -27,7 +27,7 @@ class RequisitionController extends Controller
 
         $positions = $this->positionsForCurrentDivision();
 
-        return view('requisitions.index', compact('requisitions'));
+        return view('requisitions.index', compact('requisitions', 'positions'));
     }
 
     public function create(): View
