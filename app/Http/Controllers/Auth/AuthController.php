@@ -71,7 +71,7 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -79,18 +79,17 @@ class AuthController extends Controller
             'division_id' => null,
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('applicant.profile.edit');
+        return redirect()
+            ->route('login')
+            ->with('status', 'Registrasi berhasil! Silakan masuk menggunakan email dan kata sandi Anda.');
     }
 
     private function destinationFor(User $user): string
     {
         return match ($user->role) {
-            'hrd' => route('divisions.index'),
+            'hrd' => route('dashboard.hrd'),
             'division_manager' => route('dashboard.manager'),
-            default => route('applicant.jobs.index'),
+            default => route('dashboard.applicant'),
         };
     }
 }

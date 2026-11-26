@@ -14,5 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call(InitialHrdSeeder::class);
         $this->call(DivisionSeeder::class);
         $this->call(PositionSeeder::class);
+        $this->call(InitialManagerSeeder::class);
     }
 }
