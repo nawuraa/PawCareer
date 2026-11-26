@@ -93,7 +93,11 @@ class ApplicationController extends Controller
                 ]);
             }
 
-            $path = $validated['cv']->store("applications/{$user->id}", 'local');
+            $file = $validated['cv'];
+            $originalName = $file->getClientOriginalName();
+            
+            $path = $file->storeAs("applications/{$user->id}", $originalName, $originalName = 'local');
+            // $path = $validated['cv']->store("applications/{$user->id}", 'local');
             if ($path === false) {
                 throw new \RuntimeException('The CV could not be stored.');
             }
@@ -135,6 +139,8 @@ class ApplicationController extends Controller
         Gate::authorize('view', $application);
 
         abort_unless(Storage::disk('local')->exists($application->cv_path), 404);
+
+        $namaFile = basename($application->cv_path);
 
         return Storage::disk('local')->download($application->cv_path);
     }
