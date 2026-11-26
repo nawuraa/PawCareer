@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApplicationNotification;
 use App\Models\JobPosting;
 use App\Models\Requisition;
 use Illuminate\Http\RedirectResponse;
@@ -58,6 +59,8 @@ class JobPostingController extends Controller
                 return 'already_reviewed';
             }
 
+            $positionName = $lockedRequisition->position->name ?? 'Posisi Baru';
+
             if ($decision['action'] === 'reject') {
                 $lockedRequisition->update([
                     'status' => 'rejected',
@@ -65,6 +68,21 @@ class JobPostingController extends Controller
                     'review_note' => $review['review_note'],
                     'reviewed_at' => now(),
                 ]);
+
+                if ($lockedRequisition->requested_by) {
+                    ApplicationNotification::create([
+                        'user_id' => $lockedRequisition->requested_by,
+                        'type' => 'requisition_rejected',
+                        'data' => [
+                            'requisition_id' => $lockedRequisition->id,
+                            'job_title' => $positionName,
+                            'status' => 'rejected',
+                            'reason' => $review['review_note'],
+                            'message' => "Pengajuan staf untuk posisi {$positionName} ({$lockedRequisition->quantity} orang) ditolak oleh HRD.",
+                        ],
+                        'created_at' => now(),
+                    ]);
+                }
 
                 return 'rejected';
             }
@@ -82,13 +100,28 @@ class JobPostingController extends Controller
 
             $lockedRequisition->jobPosting()->create([
                 'created_by' => Auth::id(),
-                'title' => ($review['title'] ?? null) ?: $lockedRequisition->position->name,
+                'title' => ($review['title'] ?? null) ?: $positionName,
                 'description' => $review['description'],
                 'requirements' => $review['requirements'] ?? null,
                 'quota' => $lockedRequisition->quantity,
                 'deadline' => $review['deadline'],
                 'status' => 'open',
             ]);
+
+            if ($lockedRequisition->requested_by) {
+                ApplicationNotification::create([
+                    'user_id' => $lockedRequisition->requested_by,
+                    'type' => 'requisition_approved',
+                    'data' => [
+                        'requisition_id' => $lockedRequisition->id,
+                        'job_title' => $positionName,
+                        'status' => 'approved',
+                        'note' => $review['review_note'] ?? null,
+                        'message' => "Pengajuan staf untuk posisi {$positionName} ({$lockedRequisition->quantity} orang) telah disetujui HRD dan lowongan resmi dipublikasikan.",
+                    ],
+                    'created_at' => now(),
+                ]);
+            }
 
             return 'approved';
         });

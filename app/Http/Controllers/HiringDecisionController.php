@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\ApplicationNotification;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,9 +74,10 @@ class HiringDecisionController extends Controller
                 'created_at' => now(),
             ]);
 
-            $lockedApplication->loadMissing('jobPosting');
+            $lockedApplication->loadMissing(['applicant', 'jobPosting.requisition.position']);
             $accepted = $result === 'accepted';
 
+            // Notifikasi untuk Pelamar
             ApplicationNotification::create([
                 'user_id' => $lockedApplication->applicant_id,
                 'type' => 'hiring_decision',
@@ -91,6 +93,33 @@ class HiringDecisionController extends Controller
                 ],
                 'created_at' => now(),
             ]);
+
+            // Notifikasi untuk Manajer Divisi jika kandidat diterima sebagai Karyawan Baru
+            if ($accepted) {
+                $divisionId = $lockedApplication->jobPosting->requisition->position->division_id ?? null;
+                $applicantName = $lockedApplication->applicant->name ?? 'Kandidat';
+                $jobTitle = $lockedApplication->jobPosting->title;
+
+                $managers = User::query()
+                    ->where('role', 'division_manager')
+                    ->when($divisionId, fn ($q) => $q->where('division_id', $divisionId))
+                    ->get();
+
+                foreach ($managers as $manager) {
+                    ApplicationNotification::create([
+                        'user_id' => $manager->id,
+                        'type' => 'new_employee_hired',
+                        'data' => [
+                            'application_id' => $lockedApplication->id,
+                            'job_title' => $jobTitle,
+                            'status' => 'accepted',
+                            'start_date' => $validated['start_date'],
+                            'message' => "Karyawan baru diterima: {$applicantName} bergabung untuk posisi {$jobTitle}.",
+                        ],
+                        'created_at' => now(),
+                    ]);
+                }
+            }
         });
 
         return redirect()->route('hrd.applications.index')->with('success', 'Final hiring decision recorded.');
