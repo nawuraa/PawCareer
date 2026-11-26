@@ -44,9 +44,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // ================= HRD =================
     Route::middleware('role:hrd')->group(function () {
         Route::get('/hrd', function () {
             return response()->json(['message' => 'hrd ok']);
@@ -65,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/job-postings/review', [JobPostingController::class, 'indexReview'])->name('job_postings.review');
         Route::post('/job-postings/review/{requisition}', [JobPostingController::class, 'processReview'])->name('job_postings.process_review');
         Route::resource('job-postings', JobPostingController::class)->except(['create', 'store', 'show']);
+
         Route::get('/hrd/applications', [ApplicationController::class, 'index'])->name('hrd.applications.index');
         Route::put('/hrd/applications/{application}/screening', [ApplicationScreeningController::class, 'update'])
             ->name('hrd.applications.screening.update');
@@ -77,18 +79,24 @@ Route::middleware(['auth'])->group(function () {
             ->name('hrd.interviews.evaluation.update');
     });
 
+    // ================= Umum (semua user login) =================
     Route::get('/applications/{application}/cv', [ApplicationController::class, 'downloadCv'])->name('applications.cv');
     Route::get('/portal/notifications', [DashboardController::class, 'notifications'])->name('portal.notifications.index');
 
+    // ================= Division Manager =================
     Route::middleware('role:division_manager')->group(function () {
         Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('dashboard.manager');
         Route::get('/manager/trash', [TrashController::class, 'index'])->name('trash.index');
         Route::post('/trash/requisitions/{id}/restore', [TrashController::class, 'restoreRequisition'])->name('trash.requisitions.restore');
+
         Route::prefix('manager')->group(function () {
-        Route::resource('requisitions', RequisitionController::class)->except(['show']);});
+            Route::resource('requisitions', RequisitionController::class)->except(['show']);
+        });
+
         Route::get('manager/employees', [EmployeeController::class, 'index'])->name('employees.index');
     });
 
+    // ================= Applicant =================
     Route::middleware('role:applicant')->group(function () {
         Route::get('/applicant/dashboard', [DashboardController::class, 'applicant'])->name('dashboard.applicant');
         Route::get('/jobs', [ApplicantJobPostingController::class, 'index'])->name('applicant.jobs.index');
