@@ -19,7 +19,7 @@
 </head>
 <body class="text-gray-800 flex h-screen overflow-hidden antialiased">
 
-    <!-- SIDEBAR (Tetap berada di atas backdrop agar tidak ikut redup) -->
+    <!-- SIDEBAR -->
     <aside class="sidebar relative z-50 w-[260px] h-full flex flex-col text-white flex-shrink-0 border-r border-white/10">
         <!-- Logo & Portal -->
         <div class="p-6 pb-4">
@@ -34,7 +34,10 @@
             </div>
             <div class="mt-4 pt-3.5 border-t border-white/10">
                 <p class="text-[11px] text-gray-400">
-                    Portal <span class="text-white font-semibold">Manajer Divisi</span> · Medis &amp; Bedah
+                    Portal <span class="text-white font-semibold">Manajer Divisi</span>
+                    @if(auth()->user()->division)
+                        · {{ auth()->user()->division->name }}
+                    @endif
                 </p>
             </div>
         </div>
@@ -65,37 +68,20 @@
                 <i class="ph-fill ph-trash text-lg"></i>
                 <span>Tempat Sampah</span>
             </a>
-
-            <div class="pt-6 pb-2 px-3.5">
-                <p class="text-[10px] font-bold tracking-wider text-gray-500 uppercase">Lainnya</p>
-            </div>
-
-            <!-- Tombol Notifikasi Interaktif -->
-            <button type="button"
-                    id="notifToggleBtn"
-                    aria-expanded="false"
-                    aria-controls="notifDrawer"
-                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 border border-transparent transition-all text-sm font-medium cursor-pointer">
-                <div class="flex items-center gap-3">
-                    <i id="notifBellIcon" class="ph ph-bell text-lg"></i>
-                    <span>Notifikasi</span>
-                </div>
-                <span id="notifBadge"
-                      class="bg-[#f18c54] text-white text-[11px] font-bold min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full">
-                    1
-                </span>
-            </button>
         </nav>
 
         <!-- Profil Bawah -->
         <div class="p-4 border-t border-white/10 bg-black/15 flex items-center justify-between gap-2">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-full bg-[#f18c54] flex items-center justify-center font-bold text-xs text-white shrink-0">
-                    BP
+                @php
+                    $initials = collect(explode(' ', auth()->user()->name))->map(fn($n) => substr($n, 0, 1))->take(2)->join('');
+                @endphp
+                <div class="w-9 h-9 rounded-full bg-[#f18c54] flex items-center justify-center font-bold text-xs text-white shrink-0 uppercase">
+                    {{ $initials }}
                 </div>
                 <div class="min-w-0">
-                    <p class="text-xs font-semibold text-white truncate">drh. Bima Prasetyo</p>
-                    <p class="text-[11px] text-gray-400 truncate">bima@sahabatsatwa.id</p>
+                    <p class="text-xs font-semibold text-white truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-[11px] text-gray-400 truncate">{{ auth()->user()->email }}</p>
                 </div>
             </div>
 
@@ -113,6 +99,13 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 h-full overflow-y-auto relative">
         <div class="px-8 py-9 max-w-5xl mx-auto">
+
+            <!-- Flash message -->
+            @if(session('success'))
+                <div class="mb-6 px-4 py-3 rounded-xl bg-green-50 text-green-700 border border-green-200 flex items-center gap-2 text-sm">
+                    <i class="ph-fill ph-check-circle text-lg"></i> {{ session('success') }}
+                </div>
+            @endif
 
             <!-- Breadcrumb & Header Halaman -->
             <div class="mb-8">
@@ -134,313 +127,75 @@
                     </div>
 
                     <div class="text-xs text-gray-500 bg-white border border-gray-200 px-3.5 py-2 rounded-lg shrink-0">
-                        Total item tersimpan: <strong class="text-gray-900">1</strong>
+                        Total item tersimpan: <strong class="text-gray-900">{{ $trashedRequisitions->count() }}</strong>
                     </div>
                 </div>
             </div>
 
             <!-- List Data yang Dihapus -->
-            <div class="bg-white rounded-2xl border border-gray-200/90 p-5 mb-6 shadow-2xs hover:border-gray-300 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            @forelse($trashedRequisitions as $req)
+                <div class="bg-white rounded-2xl border border-gray-200/90 p-5 mb-4 shadow-2xs hover:border-gray-300 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
 
-                <!-- Kiri: Badge & Info Data -->
-                <div class="flex items-start sm:items-center gap-4">
-                    <span class="bg-[#f3f4f1] text-[#0c251e] border border-gray-200 text-[10px] font-bold px-3 py-1.5 rounded-lg tracking-wider shrink-0">
-                        PENGAJUAN
-                    </span>
-                    <div>
-                        <h3 class="font-semibold text-gray-900 text-[15px]">Asisten Bedah · 1 orang</h3>
-                        <p class="text-[13px] text-gray-500 mt-0.5">
-                            Alasan: Duplikat pengajuan · Dihapus pada 30 Okt 2026
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Kanan: Progress Bar & Tombol -->
-                <div class="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                    <!-- Countdown bar -->
-                    <div class="w-36">
-                        <div class="flex items-center justify-between text-[11px] mb-1.5">
-                            <span class="text-gray-400">Sisa waktu</span>
-                            <span class="text-[#0c251e] font-semibold">24 hari</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-[#0c251e] h-1.5 rounded-full" style="width: 80%"></div>
+                    <!-- Kiri: Badge & Info Data -->
+                    <div class="flex items-start sm:items-center gap-4">
+                        <span class="bg-[#f3f4f1] text-[#0c251e] border border-gray-200 text-[10px] font-bold px-3 py-1.5 rounded-lg tracking-wider shrink-0">
+                            PENGAJUAN
+                        </span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 text-[15px]">
+                                {{ $req->position->name ?? 'Posisi' }} · {{ $req->quantity }} orang
+                            </h3>
+                            <p class="text-[13px] text-gray-500 mt-0.5">
+                                Alasan: {{ \Illuminate\Support\Str::limit($req->reason, 60) }} · Dihapus pada {{ $req->deleted_at->translatedFormat('d M Y') }}
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Tombol Pulihkan -->
-                    <button type="button"
-                            onclick="return confirm('Pulihkan pengajuan Asisten Bedah ke daftar aktif?')"
-                            class="inline-flex items-center gap-1.5 bg-[#e6f4ed] hover:bg-[#d2ecdf] text-[#0c251e] text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors border border-[#c6e5d5] cursor-pointer shrink-0">
-                        <i class="ph ph-arrow-counter-clockwise text-sm font-bold"></i>
-                        <span>Pulihkan</span>
-                    </button>
+                    <!-- Kanan: Progress Bar & Tombol -->
+                    <div class="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                        <!-- Countdown bar -->
+                        <div class="w-36">
+                            <div class="flex items-center justify-between text-[11px] mb-1.5">
+                                <span class="text-gray-400">Sisa waktu</span>
+                                <span class="text-[#0c251e] font-semibold">{{ $req->days_left }} hari</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-[#0c251e] h-1.5 rounded-full" style="width: {{ $req->retention_pct }}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Pulihkan -->
+                        <form action="{{ route('trash.requisitions.restore', $req->id) }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit"
+                                    onclick="return confirm('Pulihkan pengajuan {{ $req->position->name ?? 'ini' }} ke daftar aktif?')"
+                                    class="inline-flex items-center gap-1.5 bg-[#e6f4ed] hover:bg-[#d2ecdf] text-[#0c251e] text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors border border-[#c6e5d5] cursor-pointer shrink-0">
+                                <i class="ph ph-arrow-counter-clockwise text-sm font-bold"></i>
+                                <span>Pulihkan</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            @empty
+                <div class="bg-white rounded-2xl border border-gray-200/90 p-10 text-center shadow-2xs">
+                    <i class="ph ph-trash text-gray-300 text-5xl mb-3 block"></i>
+                    <p class="font-semibold text-gray-700">Tempat sampah kosong</p>
+                    <p class="text-sm text-gray-400 mt-1">Tidak ada pengajuan yang telah dihapus.</p>
+                </div>
+            @endforelse
 
             <!-- Banner Info Aturan -->
-            <div class="bg-[#edf6f2] border border-[#d3e8de] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="bg-[#edf6f2] border border-[#d3e8de] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-6">
                 <div class="flex items-start gap-3">
                     <i class="ph-fill ph-info text-[#0c251e] text-lg shrink-0 mt-0.5"></i>
                     <p class="text-xs text-[#163a28] leading-relaxed">
-                        Posisi tidak dapat dipulihkan bila divisinya juga terhapus. Nama data di tempat sampah tetap terpakai sampai dipulihkan atau dibuang permanen. Pembuangan otomatis harian setelah 30 hari berlaku pada Rilis 2.
+                        Posisi tidak dapat dipulihkan bila divisinya juga terhapus. Nama data di tempat sampah tetap terpakai sampai dipulihkan atau dibuang permanen. Pembuangan otomatis harian setelah 30 hari berlaku.
                     </p>
                 </div>
-                <span class="text-[10px] font-bold text-[#4a6e55] bg-white/80 border border-[#d3e8de] px-2.5 py-1 rounded-md uppercase tracking-wider whitespace-nowrap self-start sm:self-center">
-                    SDL · A-28
-                </span>
             </div>
 
         </div>
     </main>
 
-    <!-- OVERLAY BACKDROP (Hanya meredupkan area konten utama, bukan sidebar) -->
-    <div id="notifBackdrop"
-         class="fixed inset-0 left-[260px] bg-slate-900/25 backdrop-blur-[1px] z-30 opacity-0 pointer-events-none transition-opacity duration-200"></div>
-
-    <!-- SLIDE-OVER DRAWER NOTIFIKASI (Meluncur halus dari balik sidebar) -->
-    <aside id="notifDrawer"
-           aria-label="Daftar Notifikasi"
-           aria-hidden="true"
-           class="fixed top-0 left-[260px] h-full w-full max-w-[400px] bg-white border-r border-gray-200 shadow-[12px_0_32px_rgba(12,37,30,0.12)] z-40 flex flex-col -translate-x-full pointer-events-none transition-transform duration-250 ease-out">
-
-        <!-- Header Panel -->
-        <div class="px-6 py-5 border-b border-gray-200 bg-white flex items-start justify-between gap-3">
-            <div>
-                <div class="flex items-center gap-2.5">
-                    <h3 class="text-base font-bold text-gray-900">Notifikasi</h3>
-                    <span id="drawerUnreadPill"
-                          class="bg-[#f18c54]/15 text-[#d96b2d] text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                        1 Belum dibaca
-                    </span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Pembaruan status pengajuan &amp; aktivitas tempat sampah</p>
-            </div>
-
-            <button type="button"
-                    id="notifCloseBtn"
-                    aria-label="Tutup panel notifikasi"
-                    class="w-8 h-8 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 hover:text-gray-900 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer shrink-0">
-                <i class="ph ph-x text-base"></i>
-            </button>
-        </div>
-
-        <!-- Filter Tabs & Tandai Dibaca -->
-        <div class="px-6 py-2.5 border-b border-gray-100 bg-[#faf9f6] flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5">
-                <button type="button"
-                        data-filter="all"
-                        class="notif-tab px-2.5 py-1 rounded-md text-xs font-semibold bg-[#0c251e] text-white transition-colors cursor-pointer">
-                    Semua (2)
-                </button>
-                <button type="button"
-                        data-filter="unread"
-                        class="notif-tab px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 hover:bg-gray-200/70 transition-colors cursor-pointer">
-                    Belum dibaca
-                </button>
-            </div>
-
-            <button type="button"
-                    id="markAllReadBtn"
-                    class="text-[11px] font-semibold text-[#0c251e] hover:text-[#f18c54] transition-colors cursor-pointer">
-                Tandai dibaca
-            </button>
-        </div>
-
-        <!-- Daftar Item Notifikasi -->
-        <div id="notifList" class="flex-1 overflow-y-auto divide-y divide-gray-100">
-            <!-- Item 1: Belum Dibaca -->
-            <div id="unreadNotifItem"
-                 data-unread="true"
-                 class="notif-item p-5 bg-[#fdf9f3] hover:bg-[#fbf3e6] transition-colors flex items-start gap-3.5 cursor-pointer">
-                <div class="w-9 h-9 rounded-xl bg-[#f18c54]/15 text-[#e07034] flex items-center justify-center shrink-0 mt-0.5">
-                    <i class="ph-fill ph-clock-countdown text-lg"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-2">
-                        <p class="text-xs font-bold text-gray-900 leading-snug">
-                            Pengingat Masa Simpan Tempat Sampah
-                        </p>
-                        <span id="unreadDot" class="w-2 h-2 rounded-full bg-[#f18c54] shrink-0 mt-1"></span>
-                    </div>
-                    <p class="text-xs text-gray-600 mt-1.5 leading-relaxed">
-                        Pengajuan <strong class="font-semibold text-gray-800">Asisten Bedah · 1 orang</strong> akan dihapus permanen secara otomatis dalam <strong class="font-semibold text-gray-800">24 hari</strong> jika tidak dipulihkan.
-                    </p>
-                    <div class="flex items-center gap-2 mt-2.5 text-[11px] text-gray-400">
-                        <span>Hari ini</span>
-                        <span>•</span>
-                        <span>Sistem PawCareer</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 2: Sudah Dibaca -->
-            <div data-unread="false"
-                 class="notif-item p-5 bg-white hover:bg-gray-50 transition-colors flex items-start gap-3.5">
-                <div class="w-9 h-9 rounded-xl bg-[#e9f5f0] text-[#0c251e] flex items-center justify-center shrink-0 mt-0.5">
-                    <i class="ph-fill ph-check-circle text-lg"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold text-gray-800 leading-snug">
-                        Pengajuan Dipindahkan ke Tempat Sampah
-                    </p>
-                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
-                        Pengajuan Asisten Bedah (Medis &amp; Bedah) dipindahkan ke tempat sampah dengan alasan duplikat pengajuan.
-                    </p>
-                    <div class="flex items-center gap-2 mt-2.5 text-[11px] text-gray-400">
-                        <span>30 Okt 2026</span>
-                        <span>•</span>
-                        <span>Arsip Divisi</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State untuk Filter Belum Dibaca -->
-            <div id="emptyUnreadState" class="hidden py-16 px-6 text-center">
-                <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
-                    <i class="ph ph-check text-lg"></i>
-                </div>
-                <p class="text-xs font-semibold text-gray-800">Semua notifikasi sudah dibaca</p>
-                <p class="text-[11px] text-gray-400 mt-1">Tidak ada pemberitahuan baru yang tertunda.</p>
-            </div>
-        </div>
-
-        <!-- Footer Panel -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-[#faf9f6] flex items-center justify-between gap-3">
-            <a href="{{ route('requisitions.index') }}"
-               class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0c251e] hover:text-[#f18c54] transition-colors">
-                <span>Ke Pengajuan Kebutuhan</span>
-                <i class="ph ph-arrow-right text-sm"></i>
-            </a>
-
-            <button type="button"
-                    id="notifCloseFooterBtn"
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
-                Tutup
-            </button>
-        </div>
-    </aside>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggleBtn = document.getElementById('notifToggleBtn');
-            const bellIcon = document.getElementById('notifBellIcon');
-            const drawer = document.getElementById('notifDrawer');
-            const backdrop = document.getElementById('notifBackdrop');
-            const closeBtn = document.getElementById('notifCloseBtn');
-            const closeFooterBtn = document.getElementById('notifCloseFooterBtn');
-            const markAllReadBtn = document.getElementById('markAllReadBtn');
-            const unreadItem = document.getElementById('unreadNotifItem');
-            const unreadDot = document.getElementById('unreadDot');
-            const notifBadge = document.getElementById('notifBadge');
-            const drawerUnreadPill = document.getElementById('drawerUnreadPill');
-            const tabs = document.querySelectorAll('.notif-tab');
-            const notifItems = document.querySelectorAll('.notif-item');
-            const emptyUnreadState = document.getElementById('emptyUnreadState');
-
-            let isOpen = false;
-            let currentFilter = 'all';
-
-            function openNotif() {
-                isOpen = true;
-                drawer.classList.remove('-translate-x-full', 'pointer-events-none');
-                drawer.classList.add('translate-x-0', 'pointer-events-auto');
-                drawer.setAttribute('aria-hidden', 'false');
-
-                backdrop.classList.remove('opacity-0', 'pointer-events-none');
-                backdrop.classList.add('opacity-100', 'pointer-events-auto');
-
-                toggleBtn.setAttribute('aria-expanded', 'true');
-                toggleBtn.classList.add('bg-white/12', 'text-white', 'border-white/15');
-                if (bellIcon) {
-                    bellIcon.classList.remove('ph');
-                    bellIcon.classList.add('ph-fill', 'text-[#f18c54]');
-                }
-            }
-
-            function closeNotif() {
-                isOpen = false;
-                drawer.classList.add('-translate-x-full', 'pointer-events-none');
-                drawer.classList.remove('translate-x-0', 'pointer-events-auto');
-                drawer.setAttribute('aria-hidden', 'true');
-
-                backdrop.classList.add('opacity-0', 'pointer-events-none');
-                backdrop.classList.remove('opacity-100', 'pointer-events-auto');
-
-                toggleBtn.setAttribute('aria-expanded', 'false');
-                toggleBtn.classList.remove('bg-white/12', 'text-white', 'border-white/15');
-                if (bellIcon) {
-                    bellIcon.classList.add('ph');
-                    bellIcon.classList.remove('ph-fill', 'text-[#f18c54]');
-                }
-            }
-
-            function applyFilter(filter) {
-                currentFilter = filter;
-                let visibleCount = 0;
-
-                tabs.forEach(function (tab) {
-                    const active = tab.getAttribute('data-filter') === filter;
-                    if (active) {
-                        tab.classList.add('bg-[#0c251e]', 'text-white', 'font-semibold');
-                        tab.classList.remove('text-gray-600', 'hover:bg-gray-200/70', 'font-medium');
-                    } else {
-                        tab.classList.remove('bg-[#0c251e]', 'text-white', 'font-semibold');
-                        tab.classList.add('text-gray-600', 'hover:bg-gray-200/70', 'font-medium');
-                    }
-                });
-
-                notifItems.forEach(function (item) {
-                    const isUnread = item.getAttribute('data-unread') === 'true';
-                    const show = filter === 'all' || (filter === 'unread' && isUnread);
-                    item.style.display = show ? 'flex' : 'none';
-                    if (show) visibleCount++;
-                });
-
-                if (emptyUnreadState) {
-                    emptyUnreadState.classList.toggle('hidden', visibleCount > 0);
-                }
-            }
-
-            function markAsRead() {
-                if (notifBadge) notifBadge.classList.add('hidden');
-                if (drawerUnreadPill) {
-                    drawerUnreadPill.textContent = '0 Belum dibaca';
-                    drawerUnreadPill.classList.remove('bg-[#f18c54]/15', 'text-[#d96b2d]');
-                    drawerUnreadPill.classList.add('bg-gray-100', 'text-gray-500');
-                }
-                if (unreadDot) unreadDot.classList.add('hidden');
-                if (unreadItem) {
-                    unreadItem.setAttribute('data-unread', 'false');
-                    unreadItem.classList.remove('bg-[#fdf9f3]', 'hover:bg-[#fbf3e6]');
-                    unreadItem.classList.add('bg-white', 'hover:bg-gray-50');
-                }
-                applyFilter(currentFilter);
-            }
-
-            toggleBtn.addEventListener('click', function () {
-                isOpen ? closeNotif() : openNotif();
-            });
-
-            closeBtn.addEventListener('click', closeNotif);
-            closeFooterBtn.addEventListener('click', closeNotif);
-            backdrop.addEventListener('click', closeNotif);
-
-            markAllReadBtn.addEventListener('click', markAsRead);
-            unreadItem.addEventListener('click', markAsRead);
-
-            tabs.forEach(function (tab) {
-                tab.addEventListener('click', function () {
-                    applyFilter(this.getAttribute('data-filter'));
-                });
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && isOpen) {
-                    closeNotif();
-                }
-            });
-        });
-    </script>
 </body>
 </html>

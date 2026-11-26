@@ -212,37 +212,18 @@
                     <!-- Menu List -->
                     <div id="dropdown-menu" class="hidden absolute z-50 w-full mt-1.5 bg-[#fdfbf6] border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto">
                         <div class="p-1.5 space-y-0.5">
-                            
-                            <!-- Pilihan 1 -->
-                            <button type="button" 
-                                    class="custom-option w-full text-left px-3 py-2 text-sm rounded-lg flex justify-between items-center text-gray-700 hover:bg-[#e8f0ec] hover:text-[#0c251e] transition-colors"
-                                    data-value="1" 
-                                    data-text="Dokter Hewan Umum"
-                                    onclick="pilihPosisi(this)">
-                                <span>Dokter Hewan Umum</span>
-                                <i class="ph ph-check font-bold text-[#0c251e] opacity-0 icon-centang"></i>
-                            </button>
-
-                            <!-- Pilihan 2 -->
-                            <button type="button" 
-                                    class="custom-option w-full text-left px-3 py-2 text-sm rounded-lg flex justify-between items-center text-gray-700 hover:bg-[#e8f0ec] hover:text-[#0c251e] transition-colors"
-                                    data-value="2" 
-                                    data-text="Paramedis Veteriner"
-                                    onclick="pilihPosisi(this)">
-                                <span>Paramedis Veteriner</span>
-                                <i class="ph ph-check font-bold text-[#0c251e] opacity-0 icon-centang"></i>
-                            </button>
-
-                            <!-- Pilihan 3 -->
-                            <button type="button" 
-                                    class="custom-option w-full text-left px-3 py-2 text-sm rounded-lg flex justify-between items-center text-gray-700 hover:bg-[#e8f0ec] hover:text-[#0c251e] transition-colors"
-                                    data-value="3" 
-                                    data-text="Asisten Bedah"
-                                    onclick="pilihPosisi(this)">
-                                <span>Asisten Bedah</span>
-                                <i class="ph ph-check font-bold text-[#0c251e] opacity-0 icon-centang"></i>
-                            </button>
-
+                            @forelse($positions as $position)
+                                <button type="button"
+                                        class="custom-option w-full text-left px-3 py-2 text-sm rounded-lg flex justify-between items-center text-gray-700 hover:bg-[#e8f0ec] hover:text-[#0c251e] transition-colors"
+                                        data-value="{{ $position->id }}"
+                                        data-text="{{ $position->name }}"
+                                        onclick="pilihPosisi(this)">
+                                    <span>{{ $position->name }}</span>
+                                    <i class="ph ph-check font-bold text-[#0c251e] opacity-0 icon-centang"></i>
+                                </button>
+                            @empty
+                                <p class="text-sm text-gray-400 text-center py-3">Tidak ada posisi tersedia.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
